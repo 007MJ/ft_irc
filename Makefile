@@ -1,6 +1,6 @@
 NAME	= ircserv
 CC 		= c++
-CFLAGS	= -Wall -Werror -Wextra -std=c++98
+CPPFLAGS	= -Wall -Werror -Wextra -std=c++98
 DFLAGS	= -MMD -MF $(@:.o=.d)
 RM 		= rm -f
 AUTHOR	= loadjou mnshimiy 
@@ -26,7 +26,7 @@ HEADERS = $(addsuffix .hpp, $(addprefix src/Server/, $(SERVER))) \
 SRCS = $(addsuffix .cpp, $(addprefix src/Server/, $(SERVER))) \
 	   $(addsuffix .cpp, $(addprefix src/Channel/, $(CHANNEL))) \
 	   $(addsuffix .cpp, $(addprefix src/Client/, $(CLIENT))) \
-	   src/main.cpp
+	   src/main.cpp src/utils.cpp
 
 
 OBJS = $(SRCS:.cpp=.o)
@@ -38,11 +38,11 @@ OBJS = $(SRCS:.cpp=.o)
 all: header $(NAME)
 
 $(NAME): $(OBJS)
-	-@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
+	-@$(CC) $(CPPFLAGS) -o $(NAME) $(OBJS)
 	-@echo "BOOM 💥💥💥💥💥 $(NAME) Compiled! 💯 $(DEFAULT)"
 
 %.o: %.cpp
-	-@$(CC) $(CFLAGS) -c $< -o $@
+	-@$(CC) $(CPPFLAGS) -c $< -o $@
 
 clean: cleaned
 	-@$(RM) $(OBJS)
@@ -97,5 +97,5 @@ endif
 	@printf "%b" "$(DEFAULT)Authors:$(OBJ_COLOR)$(AUTHOR)\n"
 	@printf "%b" "$(DEFAULT)Date: 	$(OBJ_COLOR)$(DATE)\n\033[m"
 	@printf "%b" "$(DEFAULT)CC: 	$(OBJ_COLOR)$(CC)\n\033[m"
-	@printf "%b" "$(DEFAULT)Flags: 	$(OBJ_COLOR)$(CFLAGS)\n\033[m"
+	@printf "%b" "$(DEFAULT)Flags: 	$(OBJ_COLOR)$(CPPFLAGS)\n\033[m"
 	@echo
