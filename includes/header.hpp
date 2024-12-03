@@ -1,12 +1,15 @@
-#ifndef HEADER_H
-#define HEADER_H
+#ifndef HEADER_HPP
+#define HEADER_HPP
 
-// socket prototype function 
+
 #define _OE_SOCKETS
 #include <sys/socket.h>
 #include <netinet/in.h>
 
 #include <iostream>
 
+#include "class/Server.hpp"
+#include <string>
+#include <stdlib.h>
 
 #endif
