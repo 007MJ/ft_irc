@@ -11,6 +11,7 @@ class Commands
     private:
         std::string input;
         std::vector<std::string> arr_cmds;
+        std::string type_cmds;
     public:
         Commands(std::string message);
         ~Commands();
