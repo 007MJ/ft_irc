@@ -1,8 +1,8 @@
-NAME    =    ircserv
+NAME    =    cmd
 RM      =     rm -f
 CCPP  	=  		g++
 CFLAG   =     -Wall -Werror -Wextra -std=c++98
-SRC     =     src/main.cpp src/server/Server.cpp
+SRC     =     test/main.cpp commands/Commands.cpp
 
 OBJ     =     $(SRC:.cpp=.o)
 
