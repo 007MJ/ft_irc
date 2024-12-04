@@ -4,7 +4,9 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 #include <netinet/in.h>
+#include <sys/poll.h>
 
 #include "../Client/Client.hpp"
 #include "../Channel/Channel.hpp"
@@ -17,14 +19,19 @@ public:
 
     // Sets up the server by binding and listening for incoming connections
     bool SetUp();
+    bool AddClient(int clientFd_);
+    bool DeleteClient(int clientFd_);
+    Client* GetClientByFd(int fd_);
+    bool ClientExists(int fd_);
 
 private:
     int _sockFd;
     const std::string _name;
-    std::map<bool, Client> _clients;
     uint16_t _port;
     std::string _password;
     struct sockaddr_in server_addr;
+    std::vector<Client> _clients;
+    struct pollfd _clientFds[MAX_CLIENTS];
 
 
     

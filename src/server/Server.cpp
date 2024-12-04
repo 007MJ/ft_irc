@@ -39,4 +39,34 @@ bool Server::SetUp(){
     return true;
 
 }
+bool Server::AddClient(int clientFd_){
+    Client newClient(clientFd_)
+    _clients.push_back(clientFd_);
 
+    for(int i = 0; i < MAX_CLIENTS ; ++i){
+        if(_clientFds[i].fd == -1){ // -1 ==> available slot
+            _clientFds[i].fd = clientFd;
+            _clientFds[i].events = POLLRDNORM;  // Monitor for read events
+            return true;
+        }
+    }
+    return false;
+}
+bool Server::DeleteClient(int clientFd) {
+    // Find and remove client from _clients vector
+    auto it = std::find_if(_clients.begin(), _clients.end(),
+        [clientFd](const Client& client) { return client.getFd() == clientFd; });
+    
+    if (it != _clients.end()) {
+        _clients.erase(it);
+    }
+
+    // Remove the client from the pollfd array
+    for (int i = 0; i < MAX_CLIENTS; ++i) {
+        if (_clientFds[i].fd == clientFd) {
+            _clientFds[i].fd = -1;  // Mark as unused
+            return true;
+        }
+    }
+    return false;
+}
