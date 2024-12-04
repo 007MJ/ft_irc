@@ -36,10 +36,10 @@ OBJS = $(SRCS:.cpp=.o)
 ################################################################################
 
 all: header $(NAME)
+	-@echo "BOOM 💥💥💥💥💥 $(NAME) Compiled! 💯 $(DEFAULT)"
 
 $(NAME): $(OBJS)
 	-@$(CC) $(CPPFLAGS) -o $(NAME) $(OBJS)
-	-@echo "BOOM 💥💥💥💥💥 $(NAME) Compiled! 💯 $(DEFAULT)"
 
 %.o: %.cpp
 	-@$(CC) $(CPPFLAGS) -c $< -o $@

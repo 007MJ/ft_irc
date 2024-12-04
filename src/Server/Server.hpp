@@ -11,6 +11,10 @@
 #include "../Client/Client.hpp"
 #include "../Channel/Channel.hpp"
 
+#define MAX_CLIENTS 10
+#define BUFFER_SIZE 1024
+#define MAX_CLIENTS 10
+
 class Server
 {
 public:
@@ -24,6 +28,11 @@ public:
     Client* GetClientByFd(int fd_);
     bool ClientExists(int fd_);
 
+    bool AcceptClient();
+    const struct pollfd* getClientFds() const;
+    bool ReceiveDataFromClient(int fd);
+
+
 private:
     int _sockFd;
     const std::string _name;
@@ -32,6 +41,7 @@ private:
     struct sockaddr_in server_addr;
     std::vector<Client> _clients;
     struct pollfd _clientFds[MAX_CLIENTS];
+    struct sockaddr_in client_addr;
 
 
     
