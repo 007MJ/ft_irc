@@ -16,12 +16,20 @@ bool is_command(std::string s1, std::string s2){
     return (false);
 }
 
+int index_lastspace(std::string txt){
+    unsigned long i = 0;
+    while (i < txt.length() && txt[i] == ' ')
+            i++;
+    return (i);
+}
+
 Commands::Commands(std::string message)
 {
-    std::array<std::string, 7> name_cmds = {"#JOIN", "&JOIN", ":", "MODE", "TOPIC", "KICK", "INVITE"};
-    for (unsigned long i = 0; i < name_cmds.size(); i ++)
+    std::array<std::string , 6> arr = {"JOIN", ":", "MODE", "TOPIC", "KICK", "INVITE"};
+    for (unsigned long i = 0; i < arr.size(); i ++)
     {
-        std::cout << name_cmds[i] << std::endl;
+        name_cmds.push_back(arr[i]);
+        std::cout<< "Commands constructeur " << name_cmds[i] << std::endl;
     }
     this->input = message;
     std::string delims;
@@ -33,21 +41,24 @@ Commands::Commands(std::string message)
     while (this->input.empty() == false)
     {
          end = this->input.find(' ');
+         end += index_lastspace(this->input);
+         std::cout << "is the space "<< end  << std::endl;
          if (end == 0 || end  == -1)
             end = (int)this->input.length();       
          word = this->input.substr(0, end);
          if (_onlyspace(word) == false)
-            this->arr_cmds.push_back(word);
+            this->split_cmds.push_back(word);
          this->input.erase(0, end  + 1);
     }
+
     unsigned long i = 0;
     bool find_cmd = false;
-    while(i < this->arr_cmds.size() && find_cmd == false)
+    while(i < this->split_cmds.size() && find_cmd == false)
     {
         unsigned long index = 0;
         while (index < name_cmds.size() && find_cmd == false)
         {
-            if (is_command(this->arr_cmds[i] ,name_cmds[index]))
+            if (is_command(this->split_cmds[i] ,name_cmds[index]))
             {
                 this->type_cmds = name_cmds[index];
                 find_cmd = true;
@@ -56,9 +67,78 @@ Commands::Commands(std::string message)
         }
         i++;
     }
-    std::cout << this->type_cmds << std::endl;
-    // std::cout << this->arr_cmds[i] << std::endl;
+    i = 0 ;
+    std::cout << "type de command :"<< this->type_cmds << std::endl;
+    while(i < this->split_cmds.size() )
+    {
+    
+        std::cout << "what is in split_cmds ->" << this->split_cmds[i] << std::endl;
+        i++;
+    }
+
     std::cout << "....complite" << std::endl;
 
 }
 Commands::~Commands(){}
+
+
+
+
+
+
+/// @brief It parses the message for the channel command channel name (value) and for password (key_value) if there is : usrname(value) and empty(key_value)
+/// @return container map<value, key_value> 
+std::map<std::string, std::string> Commands::_join(){
+    unsigned long index = 0;
+    bool is_enter = false;
+    std::vector<std::string> tmp;
+    while (index < this->split_cmds.size())
+    {
+        unsigned long in = 0;
+        is_enter = false;
+        while (in < name_cmds.size())
+        {
+            if (this->split_cmds[index][0] != '#' && this->split_cmds[index][0] != '&' && !is_command(this->split_cmds[index], name_cmds[index]) && is_enter == false)
+            {
+                is_enter = true;
+                std::cout << "why did you enter"<< this->split_cmds[index] << std::endl;
+                tmp.push_back(this->split_cmds[index]);
+                std::cout << "is what we want "<< tmp[in] << std::endl;
+            }
+            in++;
+        }
+        index++;
+    }
+    std::cout << "What is the size of tmp"<< tmp.size() << std::endl;
+    index = 0;
+    while (index < this->split_cmds.size()){
+        if (is_command(this->split_cmds[index], ":"))
+            this->arg[this->split_cmds[index]] = "";
+        else{
+            if (this->split_cmds[index][0] == '#' || this->split_cmds[index][0] == '&')
+                this->arg[this->split_cmds[index]] = "";
+        }
+        index++;
+    }
+    index = 0;
+    unsigned long i = 0;
+    while (index < this->split_cmds.size() && i < this->arg.size())
+    {
+        if (this->split_cmds[index][0] == '#' || this->split_cmds[index][0] == '&')
+        {
+            this->arg[this->split_cmds[index]] = tmp[i];
+            i++;
+        }
+        index++;
+    }
+    std::map<std::string, std::string>::iterator it=this->arg.begin();
+    std::map<std::string, std::string>::iterator end=this->arg.end();
+    while (it != end )
+    {
+        std::cout<< "JOIN FUNCTION :" << it->first << ": " << it->second << std::endl;
+        it++;
+    }
+    return (this->arg);
+}
+
+
