@@ -1,20 +1,29 @@
 Commands constructeur JOIN
-Commands constructeur :
 Commands constructeur MODE
 Commands constructeur TOPIC
 Commands constructeur KICK
 Commands constructeur INVITE
-the string ....message = #ssd #fdf 111is empty 0
-is the space 4
+the string ....message = TOPIC #test :New topicis empty 0
+is the space 5
+is the space 5
 is the space 4
 is the space -1
-type de command :
-what is in split_cmds ->#ssd
-what is in split_cmds ->#fdf
-what is in split_cmds ->111
+type de command :TOPIC
+what is in split_cmds ->TOPIC
+what is in split_cmds ->#test
+what is in split_cmds ->:New
+what is in split_cmds ->topic
 ....complite
-why did you enter111
-is what we want 111
-What is the size of tmp1
-JOIN FUNCTION :#fdf: 
-JOIN FUNCTION :#ssd: 111
+why did you enterTOPIC
+is what we want TOPIC
+why did you enter:New
+is what we want TOPIC
+why did you entertopic
+is what we want TOPIC
+What is the size of tmp3
+JOIN FUNCTION :#test: TOPIC
+JOIN FUNCTION ::New: 
+strut
+target    #test
+modstring :New
+argument  TOPIC

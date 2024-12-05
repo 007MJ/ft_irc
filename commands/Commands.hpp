@@ -6,6 +6,13 @@
 #include <array>
 #include <vector>
 #include <map>
+
+struct   context_mode{
+    std::string target;
+    std::string modestring;
+    std::vector<std::string> arguments;
+};
+
 class Commands
 {
     private:
@@ -17,9 +24,13 @@ class Commands
 
     public:
         Commands(std::string message);
-        std::vector<std::string> getArr_cmds();
         ~Commands();
-         std::map<std::string, std::string> _join();
+        std::vector<std::string> getsplitcmds();
+        std::vector<std::string> keys(char delims1, char delims2);
+        // std::vector<std::string> splittochar(char x);
+        std::map<std::string, std::string> _join();
+        context_mode _mode();
+
 };
 
 

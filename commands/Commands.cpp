@@ -25,7 +25,7 @@ int index_lastspace(std::string txt){
 
 Commands::Commands(std::string message)
 {
-    std::array<std::string , 6> arr = {"JOIN", ":", "MODE", "TOPIC", "KICK", "INVITE"};
+    std::array<std::string , 5> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE"};
     for (unsigned long i = 0; i < arr.size(); i ++)
     {
         name_cmds.push_back(arr[i]);
@@ -82,9 +82,32 @@ Commands::Commands(std::string message)
 Commands::~Commands(){}
 
 
+std::vector<std::string> Commands::keys(char delims1, char delim2){
+    unsigned long index = 0;
+    bool is_enter = false;
+    std::vector<std::string> tmp;
+    while (index < this->split_cmds.size())
+    {
+        unsigned long in = 0;
+        is_enter = false;
+        while (in < name_cmds.size())
+        {
+            if (this->split_cmds[index][0] != delims1 && this->split_cmds[index][0] != delim2 && !is_command(this->split_cmds[index], name_cmds[index]) && is_enter == false)
+            {
+                is_enter = true;
+                std::cout << "why did you enter"<< this->split_cmds[index] << std::endl;
+                tmp.push_back(this->split_cmds[index]);
+                std::cout << "is what we want "<< tmp[in] << std::endl;
+            }
+            in++;
+        }
+        index++;
+    }
+    return tmp;
+}
 
-
-
+// std::vector<std::string> Commands::splittochar(char x){
+// }
 
 /// @brief It parses the message for the channel command channel name (value) and for password (key_value) if there is : usrname(value) and empty(key_value)
 /// @return container map<value, key_value> 
@@ -109,6 +132,7 @@ std::map<std::string, std::string> Commands::_join(){
         }
         index++;
     }
+    // tmp = this->keys('#', '&');
     std::cout << "What is the size of tmp"<< tmp.size() << std::endl;
     index = 0;
     while (index < this->split_cmds.size()){
@@ -141,4 +165,29 @@ std::map<std::string, std::string> Commands::_join(){
     return (this->arg);
 }
 
+std::vector<std::string> Commands::getsplitcmds()  {
+    return (this->split_cmds);
+    }
 
+
+/// @brief It analyzes the message as follows <target> [<modestring> [<mode arguments>...]]
+/// @return struct with which has three variables the string target and string modestring and argument vector
+context_mode Commands::_mode(){
+    unsigned long index = 0;
+    context_mode var;
+    if (this->split_cmds.size() > 2)
+        var.target = this->split_cmds[1];
+    while (index < this->split_cmds.size()){
+        if (index == 2)
+            var.modestring = this->split_cmds[index];
+        else
+            var.arguments.push_back(this->split_cmds[index]);
+        index++;
+    }
+    std::cout << "strut" << std::endl;
+    std::cout << "target    " << var.target << std::endl;
+    std::cout << "modstring " << var.modestring << std::endl;
+    std::cout << "argument  " << var.arguments[0] << std::endl;
+
+    return var;
+}
