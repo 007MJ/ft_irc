@@ -36,7 +36,7 @@ Commands::Commands(std::string message)
     std::string word;
     int end = 0;
 
-    // std::cout << "the string ....message = "<< this->input << "is empty "<< this->input.empty() << std::endl;
+    std::cout << "the string ....message = "<< this->input << "is empty "<< this->input.empty() << std::endl;
 
     while (this->input.empty() == false)
     {
@@ -48,7 +48,7 @@ Commands::Commands(std::string message)
          word = this->input.substr(0, end);
          if (_onlyspace(word) == false)
             this->split_cmds.push_back(word);
-         this->input.erase(0, end  + 1);
+         this->input.erase(0, end);
     }
 
     unsigned long i = 0;
@@ -68,15 +68,15 @@ Commands::Commands(std::string message)
         i++;
     }
     i = 0 ;
-    // std::cout << "type de command :"<< this->type_cmds << std::endl;
+    std::cout << "type de command :"<< this->type_cmds << std::endl;
     while(i < this->split_cmds.size() )
     {
     
-        // std::cout << "what is in split_cmds ->" << this->split_cmds[i] << std::endl;
+        std::cout << "what is in split_cmds ->" << this->split_cmds[i] << std::endl;
         i++;
     }
 
-    // std::cout << "....complite" << std::endl;
+    std::cout << "....complite" << std::endl;
 
 }
 Commands::~Commands(){}
@@ -109,7 +109,7 @@ std::vector<std::string>Commands::values(){
         std::cout<<" tmp --- " << tmp[in] << std::endl;
         in++;
     }
-        std::cout<<" end"<< std::endl;
+    std::cout<<" end"<< std::endl;
     return (tmp);
 }
 
@@ -128,10 +128,11 @@ std::map<std::string, std::string>Commands::keys_and_value() {
 
     index = 0;
     unsigned long i = 0; 
-    while (index < this->split_cmds.size() && i < this->arg.size() && tmp.size() >= i && tmp.size() >= index){
+    while (index < this->split_cmds.size() && i < this->arg.size() ){
         if (this->split_cmds[index][0] == '#' || this->split_cmds[index][0] == '&')
         {
-            this->arg[this->split_cmds[index]] = tmp[i];
+            if (tmp.size() > 0)
+                this->arg[this->split_cmds[index]] = tmp[i];
             i++;
         }
         index++;

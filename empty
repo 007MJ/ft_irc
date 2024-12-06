@@ -1,6 +1,9 @@
-Enter split -> : jamesname_cmds-> : JOIN
-Enter split -> : chanalname_cmds-> : MODE
+the string ....message = JOIN  #chanalis empty 0
+type de command :JOIN
+what is in split_cmds ->JOIN
+what is in split_cmds ->#chanal
+....complite
+Enter split -> : JOINname_cmds-> : JOIN
  start
- tmp --- james
- tmp --- chanal
  end
+firs-> : #chanal | second-> : 
