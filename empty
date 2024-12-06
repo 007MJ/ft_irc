@@ -1,9 +1,13 @@
-the string ....message = JOIN  #chanalis empty 0
-type de command :JOIN
-what is in split_cmds ->JOIN
+the string ....message =       #chanal   cg gfgfg is empty 0
+type de command :
 what is in split_cmds ->#chanal
+what is in split_cmds ->cg
+what is in split_cmds ->gfgfg
 ....complite
-Enter split -> : JOINname_cmds-> : JOIN
+Enter split -> : cgname_cmds-> : MODE
+Enter split -> : gfgfgname_cmds-> : TOPIC
  start
+ tmp --- cg
+ tmp --- gfgfg
  end
-firs-> : #chanal | second-> : 
+firs-> : #chanal | second-> : cg
