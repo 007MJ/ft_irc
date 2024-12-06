@@ -1,29 +1,6 @@
-Commands constructeur JOIN
-Commands constructeur MODE
-Commands constructeur TOPIC
-Commands constructeur KICK
-Commands constructeur INVITE
-the string ....message = TOPIC #test :New topicis empty 0
-is the space 5
-is the space 5
-is the space 4
-is the space -1
-type de command :TOPIC
-what is in split_cmds ->TOPIC
-what is in split_cmds ->#test
-what is in split_cmds ->:New
-what is in split_cmds ->topic
-....complite
-why did you enterTOPIC
-is what we want TOPIC
-why did you enter:New
-is what we want TOPIC
-why did you entertopic
-is what we want TOPIC
-What is the size of tmp3
-JOIN FUNCTION :#test: TOPIC
-JOIN FUNCTION ::New: 
-strut
-target    #test
-modstring :New
-argument  TOPIC
+Enter split -> : jamesname_cmds-> : JOIN
+Enter split -> : chanalname_cmds-> : MODE
+ start
+ tmp --- james
+ tmp --- chanal
+ end

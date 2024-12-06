@@ -26,8 +26,9 @@ class Commands
         Commands(std::string message);
         ~Commands();
         std::vector<std::string> getsplitcmds();
-        std::vector<std::string> keys(char delims1, char delims2);
+        std::vector<std::string> values();
         // std::vector<std::string> splittochar(char x);
+        std::map<std::string, std::string> keys_and_value();
         std::map<std::string, std::string> _join();
         context_mode _mode();
 

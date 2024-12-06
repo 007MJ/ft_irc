@@ -29,20 +29,20 @@ Commands::Commands(std::string message)
     for (unsigned long i = 0; i < arr.size(); i ++)
     {
         name_cmds.push_back(arr[i]);
-        std::cout<< "Commands constructeur " << name_cmds[i] << std::endl;
+        // std::cout<< "Commands constructeur " << name_cmds[i] << std::endl;
     }
     this->input = message;
     std::string delims;
     std::string word;
     int end = 0;
 
-    std::cout << "the string ....message = "<< this->input << "is empty "<< this->input.empty() << std::endl;
+    // std::cout << "the string ....message = "<< this->input << "is empty "<< this->input.empty() << std::endl;
 
     while (this->input.empty() == false)
     {
          end = this->input.find(' ');
          end += index_lastspace(this->input);
-         std::cout << "is the space "<< end  << std::endl;
+        //  std::cout << "is the space "<< end  << std::endl;
          if (end == 0 || end  == -1)
             end = (int)this->input.length();       
          word = this->input.substr(0, end);
@@ -68,21 +68,20 @@ Commands::Commands(std::string message)
         i++;
     }
     i = 0 ;
-    std::cout << "type de command :"<< this->type_cmds << std::endl;
+    // std::cout << "type de command :"<< this->type_cmds << std::endl;
     while(i < this->split_cmds.size() )
     {
     
-        std::cout << "what is in split_cmds ->" << this->split_cmds[i] << std::endl;
+        // std::cout << "what is in split_cmds ->" << this->split_cmds[i] << std::endl;
         i++;
     }
 
-    std::cout << "....complite" << std::endl;
+    // std::cout << "....complite" << std::endl;
 
 }
 Commands::~Commands(){}
 
-
-std::vector<std::string> Commands::keys(char delims1, char delim2){
+std::vector<std::string>Commands::values(){
     unsigned long index = 0;
     bool is_enter = false;
     std::vector<std::string> tmp;
@@ -90,51 +89,33 @@ std::vector<std::string> Commands::keys(char delims1, char delim2){
     {
         unsigned long in = 0;
         is_enter = false;
-        while (in < name_cmds.size())
+        if (this->split_cmds[index][0] != '#' && this->split_cmds[index][0] != '&' && this->split_cmds[index][0] != ':')
         {
-            if (this->split_cmds[index][0] != delims1 && this->split_cmds[index][0] != delim2 && !is_command(this->split_cmds[index], name_cmds[index]) && is_enter == false)
-            {
-                is_enter = true;
-                std::cout << "why did you enter"<< this->split_cmds[index] << std::endl;
-                tmp.push_back(this->split_cmds[index]);
-                std::cout << "is what we want "<< tmp[in] << std::endl;
+            while (in < this->name_cmds.size() && is_enter == false){
+                if (split_cmds[index] == name_cmds[in])
+                    is_enter = true;
+                in++;
             }
-            in++;
+            if (!is_enter)
+                tmp.push_back(this->split_cmds[index]);
+            std::cout << "Enter split -> : "<< this->split_cmds[index] << "name_cmds-> : " <<name_cmds[index]<< std::endl;
+            // std::cout << "is what we want "<< tmp[in] << std::endl;
         }
         index++;
     }
-    return tmp;
+    unsigned long in = 0;
+        std::cout<<" start"<< std::endl;
+    while (in < tmp.size()){
+        std::cout<<" tmp --- " << tmp[in] << std::endl;
+        in++;
+    }
+        std::cout<<" end"<< std::endl;
+    return (tmp);
 }
 
-// std::vector<std::string> Commands::splittochar(char x){
-// }
-
-/// @brief It parses the message for the channel command channel name (value) and for password (key_value) if there is : usrname(value) and empty(key_value)
-/// @return container map<value, key_value> 
-std::map<std::string, std::string> Commands::_join(){
+std::map<std::string, std::string>Commands::keys_and_value() {
     unsigned long index = 0;
-    bool is_enter = false;
-    std::vector<std::string> tmp;
-    while (index < this->split_cmds.size())
-    {
-        unsigned long in = 0;
-        is_enter = false;
-        while (in < name_cmds.size())
-        {
-            if (this->split_cmds[index][0] != '#' && this->split_cmds[index][0] != '&' && !is_command(this->split_cmds[index], name_cmds[index]) && is_enter == false)
-            {
-                is_enter = true;
-                std::cout << "why did you enter"<< this->split_cmds[index] << std::endl;
-                tmp.push_back(this->split_cmds[index]);
-                std::cout << "is what we want "<< tmp[in] << std::endl;
-            }
-            in++;
-        }
-        index++;
-    }
-    // tmp = this->keys('#', '&');
-    std::cout << "What is the size of tmp"<< tmp.size() << std::endl;
-    index = 0;
+    std::vector<std::string> tmp = this->values();
     while (index < this->split_cmds.size()){
         if (is_command(this->split_cmds[index], ":"))
             this->arg[this->split_cmds[index]] = "";
@@ -144,10 +125,10 @@ std::map<std::string, std::string> Commands::_join(){
         }
         index++;
     }
+
     index = 0;
-    unsigned long i = 0;
-    while (index < this->split_cmds.size() && i < this->arg.size())
-    {
+    unsigned long i = 0; 
+    while (index < this->split_cmds.size() && i < this->arg.size() && tmp.size() >= i && tmp.size() >= index){
         if (this->split_cmds[index][0] == '#' || this->split_cmds[index][0] == '&')
         {
             this->arg[this->split_cmds[index]] = tmp[i];
@@ -159,15 +140,28 @@ std::map<std::string, std::string> Commands::_join(){
     std::map<std::string, std::string>::iterator end=this->arg.end();
     while (it != end )
     {
-        std::cout<< "JOIN FUNCTION :" << it->first << ": " << it->second << std::endl;
+        std::cout<< "firs-> : " << it->first << " | second-> : " << it->second << std::endl;
         it++;
     }
     return (this->arg);
 }
 
+
+
+// std::vector<std::string> Commands::splittochar(char x){
+// }
+
+
+
+/// @brief It parses the message for the channel command channel name (value) and for password (key_value) if there is : usrname(value) and empty(key_value)
+/// @return container map<value, key_value> 
+std::map<std::string, std::string> Commands::_join(){
+    return (keys_and_value());
+}
+
 std::vector<std::string> Commands::getsplitcmds()  {
     return (this->split_cmds);
-    }
+}
 
 
 /// @brief It analyzes the message as follows <target> [<modestring> [<mode arguments>...]]
