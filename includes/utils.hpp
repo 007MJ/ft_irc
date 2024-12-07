@@ -6,5 +6,6 @@
 
 
 void errorMsg(const std::string &msg);
+bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_);
 
 #endif

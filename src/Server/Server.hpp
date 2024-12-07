@@ -31,6 +31,8 @@ public:
     bool AcceptClient();
     const struct pollfd* getClientFds() const;
     bool ReceiveDataFromClient(int fd);
+    bool IsClientAuth(int fd_);
+    bool AuthClient(int fd_);
 
 
 private:
@@ -43,8 +45,6 @@ private:
     struct pollfd _clientFds[MAX_CLIENTS];
     struct sockaddr_in client_addr;
 
-
-    
 };
 
 
