@@ -157,10 +157,22 @@ std::map<std::string, std::string>Commands::keys_and_value() {
 /// @brief It parses the message for the channel command channel name (value) and for password (key_value) if there is : usrname(value) and empty(key_value)
 /// @return container map<value, key_value> 
 std::map<std::string, std::string> Commands::_join(){
+    // parsing quand la commande elle ne pas bonnes
     return (keys_and_value());
 }
 
-std::vector<std::string> Commands::getsplitcmds()  {
+
+std::map<std::string, std::string> Commands::_topic(){
+    // parsing quand la commande elle ne pas bonnes
+    return (keys_and_value());
+}
+
+std::map<std::string, std::string> Commands::_invinte(){
+    // parsing quand la commande elle ne pas bonnes
+    return (keys_and_value());
+}
+
+std::vector<std::string> Commands::getsplitcmds(){
     return (this->split_cmds);
 }
 
@@ -176,13 +188,23 @@ context_mode Commands::_mode(){
         if (index == 2)
             var.modestring = this->split_cmds[index];
         else
-            var.arguments.push_back(this->split_cmds[index]);
+        {
+            if (index < this->split_cmds.size() && index > 2)
+                var.arguments.push_back(this->split_cmds[index]);
+        }
         index++;
     }
-    std::cout << "strut" << std::endl;
+    std::cout << "strut     " << std::endl;
     std::cout << "target    " << var.target << std::endl;
     std::cout << "modstring " << var.modestring << std::endl;
-    std::cout << "argument  " << var.arguments[0] << std::endl;
-
+    if (var.arguments.size() > 0)
+        std::cout << "argument  " << var.arguments[0] << std::endl;
     return var;
 }
+
+context_mode Commands::_kick(){
+    return (this->_mode());
+}
+
+
+
