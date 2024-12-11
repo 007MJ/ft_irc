@@ -23,6 +23,30 @@ int index_lastspace(std::string txt){
     return (i);
 }
 
+bool too_much_cmds(std::vector<std::string> split_cmd, std::array<std::string , 5> arr){
+    int count = 0;
+    unsigned long index = 0;
+    unsigned long index_arr = 0;
+
+    while (index < split_cmd.size())
+    {
+        index_arr = 0;
+        while (index_arr < arr.size())
+        {
+            if (split_cmd[index] == arr[index_arr])
+            {
+                count++;
+                break;
+            }
+            index_arr++;
+        }
+        index++;
+    }
+    if (count > 1)
+        return (true);
+    return false;
+}
+
 Commands::Commands(std::string message)
 {
     std::array<std::string , 5> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE"};
@@ -35,9 +59,6 @@ Commands::Commands(std::string message)
     std::string delims;
     std::string word;
     int end = 0;
-
-    std::cout << "the string ....message = "<< this->input << "is empty "<< this->input.empty() << std::endl;
-
     while (this->input.empty() == false)
     {
          end = this->input.find(' ');
@@ -51,6 +72,8 @@ Commands::Commands(std::string message)
          this->input.erase(0, end);
     }
 
+    if (too_much_cmds(this->split_cmds, arr))
+        this->type_cmds = "";
     unsigned long i = 0;
     bool find_cmd = false;
     while(i < this->split_cmds.size() && find_cmd == false)
@@ -67,17 +90,6 @@ Commands::Commands(std::string message)
         }
         i++;
     }
-    i = 0 ;
-    std::cout << "type de command :"<< this->type_cmds << std::endl;
-    while(i < this->split_cmds.size() )
-    {
-    
-        std::cout << "what is in split_cmds ->" << this->split_cmds[i] << std::endl;
-        i++;
-    }
-
-    std::cout << "....complite" << std::endl;
-
 }
 Commands::~Commands(){}
 
@@ -98,18 +110,9 @@ std::vector<std::string>Commands::values(){
             }
             if (!is_enter)
                 tmp.push_back(this->split_cmds[index]);
-            std::cout << "Enter split -> : "<< this->split_cmds[index] << "name_cmds-> : " <<name_cmds[index]<< std::endl;
-            // std::cout << "is what we want "<< tmp[in] << std::endl;
         }
         index++;
     }
-    unsigned long in = 0;
-        std::cout<<" start"<< std::endl;
-    while (in < tmp.size()){
-        std::cout<<" tmp --- " << tmp[in] << std::endl;
-        in++;
-    }
-    std::cout<<" end"<< std::endl;
     return (tmp);
 }
 
@@ -137,24 +140,12 @@ std::map<std::string, std::string>Commands::keys_and_value() {
         }
         index++;
     }
-    std::map<std::string, std::string>::iterator it=this->arg.begin();
-    std::map<std::string, std::string>::iterator end=this->arg.end();
-    while (it != end )
-    {
-        std::cout<< "firs-> : " << it->first << " | second-> : " << it->second << std::endl;
-        it++;
-    }
     return (this->arg);
 }
 
 
 
-// std::vector<std::string> Commands::splittochar(char x){
-// }
-
-
-
-/// @brief It parses the message for the channel command channel name (value) and for password (key_value) if there is : usrname(value) and empty(key_value)
+/// @brief EX : It parses the message for the channel command channel name (value) and for password (key_value) if there is : usrname(value) and empty(key_value)
 /// @return container map<value, key_value> 
 std::map<std::string, std::string> Commands::_join(){
     // parsing quand la commande elle ne pas bonnes
@@ -194,11 +185,6 @@ context_mode Commands::_mode(){
         }
         index++;
     }
-    std::cout << "strut     " << std::endl;
-    std::cout << "target    " << var.target << std::endl;
-    std::cout << "modstring " << var.modestring << std::endl;
-    if (var.arguments.size() > 0)
-        std::cout << "argument  " << var.arguments[0] << std::endl;
     return var;
 }
 
