@@ -154,8 +154,16 @@ std::map<std::string, std::string> Commands::_join(){
 
 
 std::map<std::string, std::string> Commands::_topic(){
-    // parsing quand la commande elle ne pas bonnes
-    return (keys_and_value());
+    std::map<std::string, std::string> arr;
+    unsigned long it = 0;
+    std::string space = " ";
+    while (it < this->split_cmds.size() -1)
+    {
+        if (it >= 1 && it < this->split_cmds.size())
+            arr[this->split_cmds[1]] += space + this->split_cmds[it + 1];
+        it++;
+    }
+    return (arr);
 }
 
 std::map<std::string, std::string> Commands::_invinte(){
