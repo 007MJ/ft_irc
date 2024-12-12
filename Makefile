@@ -29,7 +29,7 @@ SRCS = $(addsuffix .cpp, $(addprefix src/Server/, $(SERVER))) \
 	   $(addsuffix .cpp, $(addprefix src/Channel/, $(CHANNEL))) \
 	   $(addsuffix .cpp, $(addprefix src/Client/, $(CLIENT))) \
 	   $(addsuffix .cpp, $(addprefix src/Commands/, $(COMMAND))) \
-	   src/main.cpp
+	   src/main.cpp src/utils.cpp
 
 
 OBJS = $(SRCS:.cpp=.o)

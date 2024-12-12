@@ -72,26 +72,35 @@ int main(int argc, char *argv[])
                         continue; // Skip to the next client if awaiting authentication
                     }
                 }
+                // Le client doit s'identifier (Nickname)
                 else
                 {
                     char buffer[BUFFER_SIZE];
-                int n = recv(ft_irc.getClientFds()[i].fd, buffer, sizeof(buffer) - 1, 0);
-                if (n <= 0) {
-                    if (n == 0) {
-                        std::cout << "Client "
-                                  << ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->getNickname()
-                                  << " disconnected\n";
+                    int n = recv(ft_irc.getClientFds()[i].fd, buffer, sizeof(buffer) - 1, 0);
+                    if (n <= 0)
+                    {
+                        if (n == 0)
+                        {
+                            std::cout << "Client "
+                                      << ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->getNickname()
+                                      << " disconnected\n";
+                        }
+                        else
+                        {
+                            std::cout << "Error receiving data from client " << ft_irc.getClientFds()[i].fd << "\n";
+                        }
+                        ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
                     }
-                    else {
-                        std::cout << "Error receiving data from client " << ft_irc.getClientFds()[i].fd << "\n";
+                    else
+                    {
+                        // Tout commence ici !
+                        buffer[n] = '\0';
+                        std::cout << "Received from client "
+                                  << ft_irc.getClientFds()[i].fd << ": " << buffer << "\n";
+                        // Handle authenticated client commands here
+                        // Gérer un client qui veut créer un channel
+                        // À partir d'ici, les commandes sont gérées par le channel
                     }
-                    ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
-                } else {
-                    buffer[n] = '\0';
-                    std::cout << "Received from client " 
-                              << ft_irc.getClientFds()[i].fd << ": " << buffer << "\n";
-                    // Handle authenticated client commands here
-                }
                 }
             }
         }
