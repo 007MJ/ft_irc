@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
 
     while (true)
     {
-
         if (!ft_irc.AcceptClient())
             break;
 
@@ -66,41 +65,33 @@ int main(int argc, char *argv[])
                 (ft_irc.getClientFds()[i].revents & POLLRDNORM))
             {
 
-                char buffer[BUFFER_SIZE];
-
-                int n = recv(ft_irc.getClientFds()[i].fd, buffer, sizeof(buffer) - 1, 0);
-                if (n <= 0)
+                if (!ft_irc.IsClientAuth(ft_irc.getClientFds()[i].fd))
                 {
-                    if (n == 0)
+                    if (!ft_irc.AuthClient(ft_irc.getClientFds()[i].fd))
                     {
+                        continue; // Skip to the next client if awaiting authentication
+                    }
+                }
+                else
+                {
+                    char buffer[BUFFER_SIZE];
+                int n = recv(ft_irc.getClientFds()[i].fd, buffer, sizeof(buffer) - 1, 0);
+                if (n <= 0) {
+                    if (n == 0) {
                         std::cout << "Client "
                                   << ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->getNickname()
                                   << " disconnected\n";
                     }
-                    else
-                    {
-                        errorMsg("Error receiving data from client.");
+                    else {
+                        std::cout << "Error receiving data from client " << ft_irc.getClientFds()[i].fd << "\n";
                     }
                     ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
-                }
-                else
-                {
+                } else {
                     buffer[n] = '\0';
-
-                    if (!ft_irc.IsClientAuth(ft_irc.getClientFds()[i].fd))
-                    {
-                        if (!ft_irc.AuthClient(ft_irc.getClientFds()[i].fd))
-                        {
-                            continue; // Skip to the next client if still awaiting authentication
-                        }
-                    }
-                    else
-                    {
-                        buffer[n] = '\0';
-                        std::cout << "Received from client " << ft_irc.getClientFds()[i].fd
-                                  << ": " << buffer << std::endl;
-                        // Process authenticated client commands here
-                    }
+                    std::cout << "Received from client " 
+                              << ft_irc.getClientFds()[i].fd << ": " << buffer << "\n";
+                    // Handle authenticated client commands here
+                }
                 }
             }
         }

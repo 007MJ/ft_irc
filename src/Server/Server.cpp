@@ -18,7 +18,7 @@ Server::Server(int sockFd_, uint16_t port_, std::string password_) : _sockFd(soc
     for (int i = 1; i < MAX_CLIENTS; ++i)
     {
         _clientFds[i].fd = -1; // No client connected
-         _clientFds[i].events = 0;
+        _clientFds[i].events = 0;
     }
 }
 
@@ -145,16 +145,21 @@ bool Server::AcceptClient()
             errorMsg("Error while trying to accept new connection.");
             return false;
         }
-        send(client_fd, "Please enter a password\n", 90, 0); // TODO require auth
-
-        if (!AddClient(client_fd))
+        else if (!AddClient(client_fd))
         {
-            std::cout << "Server full. Rejecting new connection.\n";
+            std::cerr << "Server full. Rejecting new connection.\n";
             DeleteClient(client_fd);
             return false;
         }
+        else
+        {
+            if (send(client_fd, "Please enter the password to access the server\n", 48, 0) <= 0)
+            {
+                std::cerr << "Failed to send prompt to client " << client_fd << "\n";
+                DeleteClient(client_fd);
+            }
+        }
     }
-
     return true;
 }
 
@@ -206,7 +211,7 @@ bool Server::IsClientAuth(int fd_)
 //         return false;
 //     }
 //     // Respond to client
-    
+
 //         buffer[n - 1] = '\0';
 //         std::cout << "-" << buffer << "-    -" << _password.c_str() << "-" << "\n";
 
@@ -219,51 +224,54 @@ bool Server::IsClientAuth(int fd_)
 //             send(fd_, "You have been successfully authenticated\n", 43, 0);
 //             return true;
 //         }
-    
+
 //     send(fd_, "Wrong password, authentification failed. Try again.\n", 51, 0);
 //     return false;
-        
-// }
 
+// }
 
 bool Server::AuthClient(int fd_)
 {
-    static std::map<int, bool> promptedClients; // Track clients who have been prompted
 
-    if (!promptedClients[fd_]) { // Check if the client has already been prompted
-        if (send(fd_, "Please enter the password to access the server\n", 48, 0) < 1) {
-            errorMsg("Failed to send prompt to client.");
-            return false;
-        }
-        promptedClients[fd_] = true; // Mark client as prompted
-        return false; // Wait for the client to send their input
-    }
-
-    // Check for client input
+    // Receive input
     char buffer[BUFFER_SIZE];
-    int n = recv(fd_, buffer, sizeof(buffer) - 1, 0); // Blocking, but controlled by poll()
-    if (n <= 0) {
-        if (n == 0) {
-            // Client disconnected
+    int n = recv(fd_, buffer, sizeof(buffer) - 1, 0);
+    if (n <= 0)
+    {
+        if (n == 0)
+        {
             std::cout << "Client " << fd_ << " disconnected\n";
-        } else {
-            errorMsg("Error while receiving data from client.");
+        }
+        else
+        {
+            std::cout << "Error receiving data from client " << fd_ << "\n";
         }
         DeleteClient(fd_);
-        promptedClients.erase(fd_);
-        return false;
+        return false; // Disconnect the client
     }
 
     buffer[n] = '\0'; // Null-terminate input
+    std::string input(buffer);
+    input.erase(input.find_last_not_of("\r\n") + 1);
 
-    // Process the password
-    if (strcmp(buffer, _password.c_str()) == 0) {
+    // Verify the password
+    if (input == _password)
+    {
         _clients[fd_].setIsAuth();
-        send(fd_, "You have been successfully authenticated\n", 42, 0);
-        promptedClients.erase(fd_); // Clean up after success
+        if (send(fd_, "You have been successfully authenticated!\n", 43, 0) < 1)
+        {
+            std::cout << "Error sending authentication success message to client " << fd_ << "\n";
+            return false;
+        }
         return true;
-    } else {
-        send(fd_, "Wrong password, authentication failed. Try again\n", 48, 0);
-        return false; // Wait for further input
+    }
+    else
+    {
+        if (send(fd_, "Wrong password, authentication failed. Try again\n", 50, 0) < 1)
+        {
+            std::cout << "Error sending authentication failure message to client " << fd_ << "\n";
+            return false;
+        }
+        return false; // Wait for the client to try again
     }
 }
