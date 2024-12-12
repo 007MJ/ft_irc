@@ -15,17 +15,20 @@ DATE	= $(shell date "+%d %B %T")
 SERVER = Server
 CHANNEL = Channel
 CLIENT = Client
+COMMAND = Commands
 
 
 
 HEADERS = $(addsuffix .hpp, $(addprefix src/Server/, $(SERVER))) \
 		  $(addsuffix .hpp, $(addprefix src/Channel/, $(CHANNEL))) \
-		  $(addsuffix .hpp, $(addprefix src/Client/, $(CLIENT))) 
+		  $(addsuffix .hpp, $(addprefix src/Client/, $(CLIENT))) \
+		  $(addsuffix .hpp, $(addprefix src/Commands/, $(COMMAND))) 
 	    
 
 SRCS = $(addsuffix .cpp, $(addprefix src/Server/, $(SERVER))) \
 	   $(addsuffix .cpp, $(addprefix src/Channel/, $(CHANNEL))) \
 	   $(addsuffix .cpp, $(addprefix src/Client/, $(CLIENT))) \
+	   $(addsuffix .cpp, $(addprefix src/Commands/, $(COMMAND))) \
 	   src/main.cpp
 
 
