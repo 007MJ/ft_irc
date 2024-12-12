@@ -1,6 +1,6 @@
 NAME	= ircserv
 CC 		= c++
-CFLAGS	= -Wall -Werror -Wextra -std=c++98
+CPPFLAGS	= -Wall -Werror -Wextra -std=c++98
 DFLAGS	= -MMD -MF $(@:.o=.d)
 RM 		= rm -f
 AUTHOR	= loadjou mnshimiy 
@@ -39,13 +39,13 @@ OBJS = $(SRCS:.cpp=.o)
 ################################################################################
 
 all: header $(NAME)
-
-$(NAME): $(OBJS)
-	-@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 	-@echo "BOOM 💥💥💥💥💥 $(NAME) Compiled! 💯 $(DEFAULT)"
 
+$(NAME): $(OBJS)
+	-@$(CC) $(CPPFLAGS) -o $(NAME) $(OBJS)
+
 %.o: %.cpp
-	-@$(CC) $(CFLAGS) -c $< -o $@
+	-@$(CC) $(CPPFLAGS) -c $< -o $@
 
 clean: cleaned
 	-@$(RM) $(OBJS)
@@ -82,13 +82,13 @@ header:
 
 cleaned:
 	@printf "%b" "$(RED)"
-	@echo "         ____   _      ______  ______ _   _ ______ _____  "
-	@echo "        / ___| | |    |  ____||  __  | \\ | |  ____|  __ \\ "
-	@echo "       | |     | |    | |__   | |  | |  \\| | |__  | |  | |"
-	@echo "       | |     | |    |  __|  | |__| | .   |  __| | |  | |"
-	@echo "       | |___  | |____| |____ | |  | | |\\  | |____| |__| |"
-	@echo "        \\____| |______|______||_|  |_|_| \\_|______|_____/ "
-	@echo "                                                         "
+	@echo "      ____   _      ______  ______ _   _ ______ _____  "
+	@echo "     / ___| | |    |  ____||  __  | \\ | |  ____|  __ \\ "
+	@echo "    | |     | |    | |__   | |  | |  \\| | |__  | |  | |"
+	@echo "    | |     | |    |  __|  | |__| | .   |  __| | |  | |"
+	@echo "    | |___  | |____| |____ | |  | | |\\  | |____| |__| |"
+	@echo "     \\____| |______|______||_|  |_|_| \\_|______|_____/ "
+	@echo "                                                      "
 	@echo "$(DEFAULT)"
 
 
@@ -100,5 +100,5 @@ endif
 	@printf "%b" "$(DEFAULT)Authors:$(OBJ_COLOR)$(AUTHOR)\n"
 	@printf "%b" "$(DEFAULT)Date: 	$(OBJ_COLOR)$(DATE)\n\033[m"
 	@printf "%b" "$(DEFAULT)CC: 	$(OBJ_COLOR)$(CC)\n\033[m"
-	@printf "%b" "$(DEFAULT)Flags: 	$(OBJ_COLOR)$(CFLAGS)\n\033[m"
+	@printf "%b" "$(DEFAULT)Flags: 	$(OBJ_COLOR)$(CPPFLAGS)\n\033[m"
 	@echo
