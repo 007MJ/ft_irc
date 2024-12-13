@@ -24,10 +24,13 @@ class Commands
 
     public:
         Commands(std::string message);
+        Commands();
         ~Commands();
-        std::vector<std::string> getsplitcmds();
+        std::vector<std::string> get_splitcmds();
         std::vector<std::string> values();
+        std::string get_message(std:: string message);
         // std::vector<std::string> splittochar(char x);
+        std::string get_type_cmd();
         std::map<std::string, std::string> keys_and_value();
         std::map<std::string, std::string> _join();
         std::map<std::string, std::string> _topic();

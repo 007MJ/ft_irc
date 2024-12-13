@@ -1,4 +1,5 @@
 #include "Server/Server.hpp"
+#include "Commands/Commands.hpp"
 #include "../includes/utils.hpp"
 
 #include <iostream>
@@ -76,31 +77,25 @@ int main(int argc, char *argv[])
                 else
                 {
                     char buffer[BUFFER_SIZE];
-                    int n = recv(ft_irc.getClientFds()[i].fd, buffer, sizeof(buffer) - 1, 0);
-                    if (n <= 0)
-                    {
-                        if (n == 0)
-                        {
-                            std::cout << "Client "
-                                      << ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->getNickname()
-                                      << " disconnected\n";
-                        }
-                        else
-                        {
-                            std::cout << "Error receiving data from client " << ft_irc.getClientFds()[i].fd << "\n";
-                        }
-                        ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
+                int n = recv(ft_irc.getClientFds()[i].fd, buffer, sizeof(buffer) - 1, 0);
+                if (n <= 0) {
+                    if (n == 0) {
+                        std::cout << "Client "
+                                  << ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->getNickname()
+                                  << " disconnected\n";
                     }
-                    else
-                    {
-                        // Tout commence ici !
-                        buffer[n] = '\0';
-                        std::cout << "Received from client "
-                                  << ft_irc.getClientFds()[i].fd << ": " << buffer << "\n";
-                        // Handle authenticated client commands here
-                        // Gérer un client qui veut créer un channel
-                        // À partir d'ici, les commandes sont gérées par le channel
+                    else {
+                        std::cout << "Error receiving data from client " << ft_irc.getClientFds()[i].fd << "\n";
                     }
+                    ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
+                } else {
+                    // Tout commence ici !
+                    buffer[n] = '\0';
+                    std::cout << "Received from client " 
+                              << ft_irc.getClientFds()[i].fd << ": " << buffer << "\n";
+                    ClientHandler(buffer, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd));
+                
+                }
                 }
             }
         }

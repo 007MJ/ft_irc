@@ -29,3 +29,36 @@ bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_){
     }
     return true;
 }
+
+void ClientHandler(std::string msg, Client *nc){
+    Commands cmd(msg);
+    if (nc)
+    {
+        std::cout << "ClientHandler function() :" << std::endl;
+        nc->setTypeCmd(cmd.get_type_cmd());
+            std::cout << "bug 2" << std::endl;
+        if (cmd.get_type_cmd() == "JOIN"){
+            nc->setJoin(cmd._join());
+            std::cout << "JOIN" << std::endl;
+        }
+            // std::cout << "bug 3" << std::endl;
+        if (cmd.get_type_cmd() == "MODE"){
+            nc->setMode(cmd._mode());
+            std::cout << "MODE" << std::endl;
+        }
+        if (cmd.get_type_cmd() == "TOPIC"){
+            nc->setTopic(cmd._topic());
+            std::cout << "TOPIC" << std::endl;
+        }
+        if (cmd.get_type_cmd() == "KICK"){
+            nc->setKick(cmd._kick());
+            std::cout << "KICK" << std::endl;
+        }
+        if (cmd.get_type_cmd() == "INVINTE"){
+            nc->setInvinte(cmd._invinte());
+            std::cout << "INVINTE" << std::endl;
+        }
+
+    }else 
+        std::cout<< "can't get client :" << std::endl;
+}

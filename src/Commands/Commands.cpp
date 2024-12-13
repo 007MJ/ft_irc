@@ -46,6 +46,10 @@ bool too_much_cmds(std::vector<std::string> split_cmd, std::array<std::string , 
         return (true);
     return false;
 }
+Commands::Commands() {}
+
+std::string Commands::get_message(std::string msg){return msg;}
+std::string Commands::get_type_cmd() {return this->type_cmds;}
 
 Commands::Commands(std::string message)
 {
@@ -71,9 +75,6 @@ Commands::Commands(std::string message)
             this->split_cmds.push_back(word);
          this->input.erase(0, end);
     }
-
-    if (too_much_cmds(this->split_cmds, arr))
-        this->type_cmds = "";
     unsigned long i = 0;
     bool find_cmd = false;
     while(i < this->split_cmds.size() && find_cmd == false)
@@ -90,6 +91,8 @@ Commands::Commands(std::string message)
         }
         i++;
     }
+    if (too_much_cmds(this->split_cmds, arr))
+        this->type_cmds = "";
 }
 Commands::~Commands(){}
 
@@ -128,7 +131,6 @@ std::map<std::string, std::string>Commands::keys_and_value() {
         }
         index++;
     }
-
     index = 0;
     unsigned long i = 0; 
     while (index < this->split_cmds.size() && i < this->arg.size() ){
@@ -171,7 +173,7 @@ std::map<std::string, std::string> Commands::_invinte(){
     return (keys_and_value());
 }
 
-std::vector<std::string> Commands::getsplitcmds(){
+std::vector<std::string> Commands::get_splitcmds(){
     return (this->split_cmds);
 }
 
@@ -196,9 +198,7 @@ context_mode Commands::_mode(){
     return var;
 }
 
-context_mode Commands::_kick(){
-    return (this->_mode());
-}
+context_mode Commands::_kick(){return (this->_mode());}
 
 
 
