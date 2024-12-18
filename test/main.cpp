@@ -11,7 +11,7 @@ int main(int ac, char **av)
         // irc_input._mode();
         irc_input._topic();
         // irc_input._kick();
-        // irc_input._invinte();
+        // irc_input._invite ();
     }else
         std::cout << "no av" << std::endl;
 }

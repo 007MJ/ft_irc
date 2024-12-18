@@ -57,7 +57,7 @@ void Client::setIsAuth()
 }
 void Client::setJoin(std::map<std::string, std::string> arg) {this->_join = arg;}
 void Client::setTopic(std::map<std::string, std::string> arg) {this->_topic = arg;}
-void Client::setInvinte(std::map<std::string, std::string> arg) { this->_invinte = arg;}
+void Client::setInvinte(std::map<std::string, std::string> arg) { this->_invite  = arg;}
 void Client::setMode(context_mode arg) {this->_mode = arg;}
 void Client::setKick(context_mode arg) {this->_kick = arg;}
 void Client::setTypeCmd(std::string type) {this->_typeCmd = type;}
