@@ -24,6 +24,12 @@ class Client
         void setMode(context_mode arg);
         void setKick(context_mode arg);
         void setTypeCmd(std::string type);
+        std::string getTypeCmd();
+        std::map<std::string, std::string> getJoin();
+        std::map<std::string, std::string> getTopic();
+        std::map<std::string, std::string> getInvite();
+        context_mode getMode();
+        context_mode getKick();
         void setIsAuth();
 
     private:
