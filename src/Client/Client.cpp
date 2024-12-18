@@ -36,7 +36,6 @@ bool Client::getIsAuth() const
 }
 
 
-
 void Client::setIPadd(const std::string &IPadd_)
 {
     _IPadd = IPadd_;

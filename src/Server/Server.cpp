@@ -2,6 +2,7 @@
 #include "../../includes/utils.hpp"
 #include <arpa/inet.h>
 #include <cstdlib>
+#include <fcntl.h>
 #include <cstring>
 // #include <stdio.h>
 
@@ -143,6 +144,10 @@ bool Server::AcceptClient()
         if (client_fd < 0)
         {
             errorMsg("Error while trying to accept new connection.");
+            return false;
+        }
+        if(fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1){
+            errorMsg("fcntl() failed\n");
             return false;
         }
         else if (!AddClient(client_fd))
