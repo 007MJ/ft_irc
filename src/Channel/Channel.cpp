@@ -1,10 +1,18 @@
 #include "Channel.hpp"
 #include <sstream> 
 
-Channel::Channel(std::string name_, Client& owner_) : _name(name_)
+Channel::Channel(std::string name_, std::string password_, Client& owner_)
+: _name(name_),
+_password(password_)
 {
     AddClient(&owner_);
     _superUsers.insert(owner_.getFd()); // Adds the client to the list of super users
+
+    _inviteOnly = false;
+    _topic = "";
+    _isRestrictedTopic = false;
+    _limit = 8;
+
 }
 
 Channel::~Channel()
@@ -29,7 +37,7 @@ std::string Channel::AddClientAsSuperUser(int fd_)
 {
     std::ostringstream output;
 
-    if (_clients.find(fd_) != _clients.end()) {
+    if (IsMember(fd_)) {
         _superUsers.insert(fd_);
         output << _clients[fd_]->getNickname() << " added as moderator to #" << _name << " channel.\n";
     } else {
@@ -42,4 +50,64 @@ std::string Channel::AddClientAsSuperUser(int fd_)
 void Channel::RemoveClientAsSuperUser(int fd_)
 {
     _superUsers.erase(fd_);
+}
+
+bool Channel::IsMember(int fd_)
+{
+    return( _clients.find(fd_) != _clients.end() );
+}
+
+bool Channel::IsSuperUser(int fd_)
+{
+    return( _superUsers.find(fd_) != _superUsers.end() );
+}
+
+const std::string &Channel::GetPassword() const
+{
+    return _password;
+}
+
+void Channel::SetPassword(const std::string &password_)
+{
+    _password = password_;
+}
+
+const std::string &Channel::getTopic() const
+{
+    return _topic;
+}
+
+void Channel::SetTopic(const std::string &topic_)
+{
+    _topic = topic_;
+}
+
+bool Channel::InviteOnlyModeIsActivated() const
+{
+    return _inviteOnly;
+}
+
+bool Channel::TopicModeIsRestricted() const
+{
+    return _isRestrictedTopic;
+}
+
+void Channel::SetRestrictedTopicModeTo(bool restriction_)
+{
+    _isRestrictedTopic = restriction_;
+}
+
+void Channel::SetInviteOnlyModeTo(bool mode_)
+{
+    _inviteOnly = mode_;
+}
+
+int Channel::getChannelLimit() const
+{
+    return _limit;
+}
+
+void Channel::SetChannelLimit(int limit_)
+{
+    _limit = limit_;
 }
