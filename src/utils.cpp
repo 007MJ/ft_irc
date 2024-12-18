@@ -54,9 +54,9 @@ void ClientHandler(std::string msg, Client *nc){
             nc->setKick(cmd._kick());
             std::cout << "KICK" << std::endl;
         }
-        if (cmd.get_type_cmd() == "INVINTE"){
-            nc->setInvinte(cmd._invinte());
-            std::cout << "INVINTE" << std::endl;
+        if (cmd.get_type_cmd() == "INVITE"){
+            nc->setInvinte(cmd._invite ());
+            std::cout << "INVITE" << std::endl;
         }
 
     }else 

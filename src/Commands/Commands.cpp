@@ -168,7 +168,7 @@ std::map<std::string, std::string> Commands::_topic(){
     return (arr);
 }
 
-std::map<std::string, std::string> Commands::_invinte(){
+std::map<std::string, std::string> Commands::_invite (){
     // parsing quand la commande elle ne pas bonnes
     return (keys_and_value());
 }

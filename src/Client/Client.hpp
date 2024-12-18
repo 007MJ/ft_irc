@@ -33,15 +33,34 @@ class Client
         std::string _username;
         bool _isAuth ;
         // cmd of the clients 
-        std::string _typeCmd;
-        std::map<std::string, std::string> _join;
-        std::map<std::string, std::string> _topic;
-        std::map<std::string, std::string> _invinte;
-        context_mode _mode;
-        context_mode _kick;
+        std::string _typeCmd; // ex: JOIN, TOPIC, INVITE
+        std::map<std::string, std::string> _join; // ex: {"#foobar", ""} : {"#foo", "password"} 
+        std::map<std::string, std::string> _topic; // ex: {"#foobar", ":DescriptionTopic"}
+        
+        std::map<std::string, std::string> _invite ; // ex: {"#foobar", "username"}
+        context_mode _mode; //  std::string target = "#channel"
+                            //  std::string modestring = "+o"
+                            //  std::vector<std::string> arguments = "userName"
+        
+        // { "#channel", "+i"}  <target> [<modestring> [<mode arguments>...]]
+        context_mode _kick; //  std::string target = "#channel"
+                            //  std::string modestring = "+o"
+                            //  std::vector<std::string> arguments = "userName"
     
 };
 
 
 #endif // !CLIENT_HPP
 
+/*
+
+∗ TOPIC - Change or view the channel topic
+∗ MODE - Change the channel’s mode:
+    · i: Set/remove Invite-only channel
+    · t: Set/remove the restrictions of the TOPIC command to channel
+    operators
+    · k: Set/remove the channel key (password)
+    · o: Give/take channel operator privilege
+    l: Set/remove the user limit to channel
+
+*/
