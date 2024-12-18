@@ -1,9 +1,10 @@
 NAME	= ircserv
+TEST_NAME = irctest
 CC 		= c++
-CPPFLAGS	= -Wall -Werror -Wextra -std=c++98
+CPPFLAGS	= -Wall -Werror -Wextra #-std=c++98 //TODO activate the flag
 DFLAGS	= -MMD -MF $(@:.o=.d)
 RM 		= rm -f
-AUTHOR	= loadjou mnshimiy 
+AUTHOR	= loadjou mnshimiy anshimiy
 DATE	= $(shell date "+%d %B %T")
 
 ################################################################################
@@ -31,8 +32,15 @@ SRCS = $(addsuffix .cpp, $(addprefix src/Server/, $(SERVER))) \
 	   $(addsuffix .cpp, $(addprefix src/Commands/, $(COMMAND))) \
 	   src/main.cpp src/utils.cpp
 
+################# TEST ##################
+TEST_SRCS = $(addsuffix .cpp, $(addprefix src/Server/, $(SERVER))) \
+			$(addsuffix .cpp, $(addprefix src/Channel/, $(CHANNEL))) \
+			$(addsuffix .cpp, $(addprefix src/Client/, $(CLIENT))) \
+			$(addsuffix .cpp, $(addprefix src/Commands/, $(COMMAND))) \
+			test/main.cpp src/utils.cpp
 
 OBJS = $(SRCS:.cpp=.o)
+TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
 ################################################################################
 #                                 Makefile rules                             #
@@ -41,17 +49,23 @@ OBJS = $(SRCS:.cpp=.o)
 all: header $(NAME)
 	-@echo "BOOM 💥💥💥💥💥 $(NAME) Compiled! 💯 $(DEFAULT)"
 
+test: $(TEST_NAME)
+
 $(NAME): $(OBJS)
 	-@$(CC) $(CPPFLAGS) -o $(NAME) $(OBJS)
+
+$(TEST_NAME): $(TEST_OBJS)
+	-@$(CC) $(CPPFLAGS) -o $(TEST_NAME) $(TEST_OBJS)
+	
 
 %.o: %.cpp
 	-@$(CC) $(CPPFLAGS) -c $< -o $@
 
 clean: cleaned
-	-@$(RM) $(OBJS)
+	-@$(RM) $(OBJS) $(TEST_OBJS)
 
 fclean: clean
-	-@$(RM) $(NAME)
+	-@$(RM) $(NAME) $(TEST_NAME)
 	
 
 re: fclean all 
