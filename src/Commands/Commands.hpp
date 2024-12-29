@@ -37,6 +37,7 @@ class Commands
         std::map<std::string, std::string> _invite ();
         context_mode _mode();
         context_mode _kick();
+        context_mode _privmsg();
 
 };
 

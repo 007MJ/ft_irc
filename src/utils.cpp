@@ -58,7 +58,14 @@ void ClientHandler(std::string msg, Client *nc){
             nc->setInvinte(cmd._invite ());
             std::cout << "INVITE" << std::endl;
         }
+        if (cmd.get_type_cmd() == "PRIVMSG"){
+             std::cout << "utils  privmsg " << std::endl;
+            nc->setPrivmsg(cmd._privmsg());
+        }
 
     }else 
         std::cout<< "can't get client :" << std::endl;
 }
+
+
+void ActionClient(client *nc, )

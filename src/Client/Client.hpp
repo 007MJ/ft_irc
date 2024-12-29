@@ -14,6 +14,12 @@ class Client
         const std::string& getUsername() const;
         const std::string& getIPadd() const;
         bool getIsAuth() const;
+        context_mode getPrivmsg() const;
+        std::string getTypeCmd(std::string type) ;
+        context_mode getMode(context_mode arg);
+        std::map<std::string, std::string> getJoin(std::map<std::string, std::string> arg);
+        std::map<std::string, std::string> getTopic(std::map<std::string, std::string> arg);
+        std::map<std::string, std::string> getInvinte(std::map<std::string, std::string> arg);
 
         void setIPadd(const std::string& IPadd_);
         void setNickname(const std::string& nickname_);
@@ -23,6 +29,7 @@ class Client
         void setInvinte(std::map<std::string, std::string> arg);
         void setMode(context_mode arg);
         void setKick(context_mode arg);
+        void setPrivmsg(context_mode arg);
         void setTypeCmd(std::string type);
         void setIsAuth();
 
@@ -46,6 +53,7 @@ class Client
         context_mode _kick; //  std::string target = "#channel"
                             //  std::string modestring = "+o"
                             //  std::vector<std::string> arguments = "userName"
+        context_mode _privmsg;
     
 };
 

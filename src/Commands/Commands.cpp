@@ -23,7 +23,7 @@ int index_lastspace(std::string txt){
     return (i);
 }
 
-bool too_much_cmds(std::vector<std::string> split_cmd, std::array<std::string , 5> arr){
+bool too_much_cmds(std::vector<std::string> split_cmd, std::array<std::string , 6> arr){
     int count = 0;
     unsigned long index = 0;
     unsigned long index_arr = 0;
@@ -53,7 +53,7 @@ std::string Commands::get_type_cmd() {return this->type_cmds;}
 
 Commands::Commands(std::string message)
 {
-    std::array<std::string , 5> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE"};
+    std::array<std::string , 6> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG"};
     for (unsigned long i = 0; i < arr.size(); i ++)
     {
         name_cmds.push_back(arr[i]);
@@ -199,6 +199,31 @@ context_mode Commands::_mode(){
 }
 
 context_mode Commands::_kick(){return (this->_mode());}
+
+context_mode Commands::_privmsg()
+{
+   bool isTarget = false;
+   unsigned long index = 0;
+    context_mode var;
+    if (this->split_cmds.size() > 2)
+    {
+        var.target = this->split_cmds[1];
+        index++;
+    }
+    while (index < this->split_cmds.size()){
+        if (this->split_cmds[index][0] != ':' && isTarget == false){
+            std::cout << "this tagert : " << this->split_cmds[index] << std::endl;
+            var.arguments.push_back(this->split_cmds[index]);
+        }else{
+            std::cout << "this missage : " << this->split_cmds[index] << std::endl;
+            isTarget = true;
+            var.modestring += split_cmds[index] + " ";
+        }
+        index++;
+    }
+    std::cout << var.modestring << std::endl;
+    return var;
+}
 
 
 
