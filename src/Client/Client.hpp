@@ -15,11 +15,11 @@ class Client
         const std::string& getIPadd() const;
         bool getIsAuth() const;
         context_mode getPrivmsg() const;
-        std::string getTypeCmd(std::string type) ;
-        context_mode getMode(context_mode arg);
-        std::map<std::string, std::string> getJoin(std::map<std::string, std::string> arg);
-        std::map<std::string, std::string> getTopic(std::map<std::string, std::string> arg);
-        std::map<std::string, std::string> getInvinte(std::map<std::string, std::string> arg);
+        std::string getTypeCmd() ;
+        context_mode getMode();
+        std::map<std::string, std::string> getJoin();
+        std::map<std::string, std::string> getTopic();
+        std::map<std::string, std::string> getInvinte();
 
         void setIPadd(const std::string& IPadd_);
         void setNickname(const std::string& nickname_);

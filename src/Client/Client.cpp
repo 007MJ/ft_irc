@@ -57,11 +57,11 @@ void Client::setIsAuth()
 }
 
 context_mode Client::getPrivmsg() const {return this->_privmsg;}
-std::string Client::getTypeCmd(std::string type) {return this->_typeCmd;}
-context_mode Client::getMode(context_mode arg) {return this->_mode;}
-std::map<std::string, std::string> Client::getJoin(std::map<std::string, std::string> arg) {return this->_join;}
-std::map<std::string, std::string> Client::getTopic(std::map<std::string, std::string> arg) {return this->_topic;}
-std::map<std::string, std::string> Client::getInvinte(std::map<std::string, std::string> arg) { return this->_invite;}
+std::string Client::getTypeCmd() {return this->_typeCmd;}
+context_mode Client::getMode() {return this->_mode;}
+std::map<std::string, std::string> Client::getJoin() {return this->_join;}
+std::map<std::string, std::string> Client::getTopic() {return this->_topic;}
+std::map<std::string, std::string> Client::getInvinte() { return this->_invite;}
 
 void Client::setJoin(std::map<std::string, std::string> arg) {this->_join = arg;}
 void Client::setTopic(std::map<std::string, std::string> arg) {this->_topic = arg;}

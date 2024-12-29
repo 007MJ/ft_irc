@@ -68,4 +68,21 @@ void ClientHandler(std::string msg, Client *nc){
 }
 
 
-void ActionClient(client *nc, )
+// join chanal 
+    // 1.  the user must be invited if the channel is invite-only;
+    // 2. the user's nick/username/hostname must not match any active bans;
+    // 3. the correct key (password) must be given if it is set.
+
+    // JOIN succesful 
+        // sent the channel's topic (using RPL_TOPIC)
+        // the list of users who are on the channel (using RPL_NAMREPLY), which must include the user joining
+
+
+// Chanal mode 
+    // 
+
+void ActionClient(Client *nc, Server irc){
+    if (nc->getTypeCmd() == "JOIN"){
+
+    }
+}
