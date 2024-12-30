@@ -34,7 +34,7 @@ public:
     bool IsClientAuth(int fd_);
     bool AuthClient(int fd_);
     std::vector<Channel> getChannel();
-    void addChannel(Channel newRoom);
+    void addChannel(std::string name, std::string pwd, Client &nc);
     void remove(std::string room);
 
 

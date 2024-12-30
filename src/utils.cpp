@@ -81,35 +81,38 @@ void ClientHandler(std::string msg, Client *nc){
 // Chanal mode 
     // 
 
-unsigned int RoomCheck(Client *nc, Server irc){
+unsigned int RoomCheck(Client nc, Server irc){
     std::map<std::string, std::string> arr;
-    if (nc)
+    arr = nc.getJoin();
+    std::map<std::string, std::string>::iterator it = arr.begin();
+    std::map<std::string, std::string>::iterator end = arr.end();
+    while (it != end)
     {
-        arr = nc->getJoin();
-        std::map<std::string, std::string>::iterator it = arr.begin();
-        std::map<std::string, std::string>::iterator end = arr.end();\
-        while (it != end)
+        unsigned int index = 0;
+        while (index < irc.getChannel().size())
         {
-            unsigned int index = 0;
-            while (index < irc.getChannel().size())
-            {
-                if (it->first == irc.getChannel()[index].GetName()){
-                    if(it->second == irc.getChannel()[index].GetPassword()){
-                        if (irc.getChannel()[index].InviteOnlyModeIsActivated() == true)
-                            // do something 
-                    }
-                }
-                index++;
-                        
-            }
-            std::string name = it->first;
-            Channel newRoom((std::string)it->first, it->second, nc);
-            irc.addChannel(newRoom);
-            it++;
-        }
+            if (it->first == irc.getChannel()[index].GetName()){
+                if(it->second == irc.getChannel()[index].GetPassword()){
+                    if (irc.getChannel()[index].InviteOnlyModeIsActivated() == true)
+                        return 1;
+                    // if () check if the user is banned;
+                    // display the usr and topic
 
+                }
+            }
+            index++;
+                    
+        }
+        const std::string name = "";
+        irc.addChannel(it->first, it->second, nc);
+        it++;
     }
-    return -1;
+    return 0;
+}
+
+
+unsigned int topic(Client nc, Server irc){
+
 }
 
 int toJoin(Client *nc, Server irc){
@@ -117,6 +120,6 @@ int toJoin(Client *nc, Server irc){
 }
 int ActionClient(Client *nc, Server irc){
     if (nc->getTypeCmd() == "JOIN"){
-        return (toJoin(nc, irc))
+        return (toJoin(nc, irc));
     }
 }
