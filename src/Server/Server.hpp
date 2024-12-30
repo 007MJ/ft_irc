@@ -33,6 +33,9 @@ public:
     bool ReceiveDataFromClient(int fd);
     bool IsClientAuth(int fd_);
     bool AuthClient(int fd_);
+    std::vector<Channel> getChannel();
+    void addChannel(Channel newRoom);
+    void remove(std::string room);
 
 
 private:
@@ -42,6 +45,7 @@ private:
     std::string _password;
     struct sockaddr_in server_addr;
     std::vector<Client> _clients;
+    std::vector<Channel> _channel;
     struct pollfd _clientFds[MAX_CLIENTS];
     struct sockaddr_in client_addr;
 

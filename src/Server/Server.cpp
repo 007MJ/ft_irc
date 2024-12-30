@@ -275,3 +275,9 @@ bool Server::AuthClient(int fd_)
         return false; // Wait for the client to try again
     }
 }
+
+
+std::vector<Channel> Server::getChannel(){return this->_channel}
+void Server::addChannel(Channel newRoom) {
+    this->_channel.push_back(newRoom);
+}
