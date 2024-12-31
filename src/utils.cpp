@@ -81,29 +81,33 @@ void ClientHandler(std::string msg, Client *nc){
 // Chanal mode 
     // 
 
+unsigned int getRoom(std::string nameRoom, Server irc){
+    unsigned int index = 0;
+    while (index < irc.getChannel().size()){
+        if (nameRoom == irc.getChannel()[index].GetName())
+            return index;
+        index++;
+    }
+    return (-1);
+}
+
 unsigned int RoomCheck(Client nc, Server irc){
     std::map<std::string, std::string> arr;
+    unsigned int indexRoom;
     arr = nc.getJoin();
     std::map<std::string, std::string>::iterator it = arr.begin();
     std::map<std::string, std::string>::iterator end = arr.end();
     while (it != end)
     {
-        unsigned int index = 0;
-        while (index < irc.getChannel().size())
-        {
-            if (it->first == irc.getChannel()[index].GetName()){
-                if(it->second == irc.getChannel()[index].GetPassword()){
-                    if (irc.getChannel()[index].InviteOnlyModeIsActivated() == true)
-                        return 1;
-                    // if () check if the user is banned;
-                    // display the usr and topic
-
+        indexRoom = getRoom(it->first, irc);
+        if (indexRoom != -1){
+            if (irc.getChannel()[indexRoom].GetPassword() == it->second){
+                if (irc.getChannel()[indexRoom].InviteOnlyModeIsActivated() == false){
+                    // display topic 
+                    // display usr 
                 }
             }
-            index++;
-                    
         }
-        const std::string name = "";
         irc.addChannel(it->first, it->second, nc);
         it++;
     }
@@ -111,13 +115,40 @@ unsigned int RoomCheck(Client nc, Server irc){
 }
 
 
+
 unsigned int topic(Client nc, Server irc){
+    std::map<std::string, std::string> arr;
+    arr = nc.getTopic();
+    std::map<std::string, std::string>::iterator it = arr.begin();
+    std::map<std::string, std::string>::iterator end = arr.end();
+    unsigned int IsChannel = 0;
+    IsChannel = getRoom(it->first, irc);
+    if (IsChannel != -1){
+        if (irc.getChannel()[IsChannel].getClientChannel().find(nc.getFd()) != irc.getChannel()[IsChannel].getClientChannel().end()){
+            if (it->second == "")
+                irc.getChannel()[IsChannel].getTopic();
+            else{
+                if (irc.getChannel()[IsChannel].TopicModeIsRestricted() == false){
+                    if (irc.getChannel()[IsChannel].getSuperUsers().find(nc.getFd()) != irc.getChannel()[IsChannel].getSuperUsers().end()){
+                        irc.getChannel()[IsChannel].SetTopic(it->second);
+                    }
+                }
+            }
+        }else
+            return 442;
+    }
+}
+
+
+unsigned int invite(Client nc, Server irc){
 
 }
 
 int toJoin(Client *nc, Server irc){
 
 }
+
+
 int ActionClient(Client *nc, Server irc){
     if (nc->getTypeCmd() == "JOIN"){
         return (toJoin(nc, irc));
