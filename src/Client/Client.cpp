@@ -61,7 +61,7 @@ std::string Client::getTypeCmd() {return this->_typeCmd;}
 context_mode Client::getMode() {return this->_mode;}
 std::map<std::string, std::string> Client::getJoin() {return this->_join;}
 std::map<std::string, std::string> Client::getTopic() {return this->_topic;}
-std::map<std::string, std::string> Client::getInvinte() { return this->_invite;}
+std::map<std::string, std::string> Client::getInvite() { return this->_invite;}
 
 void Client::setJoin(std::map<std::string, std::string> arg) {this->_join = arg;}
 void Client::setTopic(std::map<std::string, std::string> arg) {this->_topic = arg;}

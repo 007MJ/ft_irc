@@ -19,7 +19,7 @@ class Client
         context_mode getMode();
         std::map<std::string, std::string> getJoin();
         std::map<std::string, std::string> getTopic();
-        std::map<std::string, std::string> getInvinte();
+        std::map<std::string, std::string> getInvite();
 
         void setIPadd(const std::string& IPadd_);
         void setNickname(const std::string& nickname_);

@@ -139,9 +139,43 @@ unsigned int topic(Client nc, Server irc){
     }
 }
 
+unsigned int isUserChannel(std::map<int, Client *> clientsChannel, std::string nickname){
+    std::map<int, Client*>::iterator it = clientsChannel.begin();
+    std::map<int, Client*>::iterator end = clientsChannel.end();
+    while (it != end){
+        if(it->second->getNickname() == nickname)
+            return (1);
+        it++;
+    }
+    return (0);
+}
+
 
 unsigned int invite(Client nc, Server irc){
-
+    std::map<std::string, std::string> arr;
+    arr = nc.getInvite();
+    std::map<std::string, std::string>::iterator it = arr.begin();
+    std::map<std::string, std::string>::iterator end = arr.end();
+    unsigned int IsChannel = 0;
+    IsChannel = getRoom(it->first, irc);
+    if(IsChannel != -1){
+        if (irc.getChannel()[IsChannel].getClientChannel().find(nc.getFd()) != irc.getChannel()[IsChannel].getClientChannel().end()){
+            if (irc.getChannel()[IsChannel].InviteOnlyModeIsActivated() == true){
+                if (irc.getChannel()[IsChannel].IsSuperUser(nc.getFd()))
+                {
+                    if (isUserChannel(irc.getChannel()[IsChannel].getClientChannel(), it->second) == 0){
+                        // irc.getChannel()[IsChannel].AddClient()
+                    }
+                }
+            }else{
+                if (isUserChannel(irc.getChannel()[IsChannel].getClientChannel(), it->second) == 0){
+                    // irc.getChannel()[IsChannel].AddClient()
+                }
+            }
+        }else
+            return 442;
+    }
+    return (403);
 }
 
 int toJoin(Client *nc, Server irc){
@@ -149,8 +183,11 @@ int toJoin(Client *nc, Server irc){
 }
 
 
-int ActionClient(Client *nc, Server irc){
-    if (nc->getTypeCmd() == "JOIN"){
-        return (toJoin(nc, irc));
+int ActionClient(Client nc, Server irc){
+    if (nc.getTypeCmd() == "JOIN"){
+        RoomCheck(nc, irc);
+    }
+    if (nc.getTypeCmd() == "TOPIC"){
+        topic(nc, irc);
     }
 }

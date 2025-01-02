@@ -10,6 +10,6 @@
 void errorMsg(const std::string &msg);
 bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_);
 void ClientHandler(std::string msg, Client *nc);
-int ActionClient(Client *nc, Server irc);
+int ActionClient(Client nc, Server irc);
 
 #endif
