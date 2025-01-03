@@ -279,6 +279,7 @@ bool Server::AuthClient(int fd_)
 
 std::vector<Channel> Server::getChannel(){return this->_channel;}
 void Server::addChannel(std::string name, std::string pwd, Client &nc) {
+    std::cout << "server add channel" << std::endl;
     Channel newRoom(name, pwd, nc);
     this->_channel.push_back(newRoom);
 }
