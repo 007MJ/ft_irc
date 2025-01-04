@@ -7,6 +7,7 @@ void errorMsg(const std::string &msg){
     write(2, formattedMsg.c_str(), formattedMsg.length());
 }
 
+
 bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_){
     {
         for(size_t i = 0; i < std::strlen(argv[1]); i++){
@@ -61,6 +62,8 @@ void EnterRoom(Channel room, std::string topic, Client *nc){
     std::map<int, Client *>::iterator end = arr.end();
     // const void *msg  = room.getTopic();
     // send(nc->getFd(), room.getTopic(), room.getTopic().size(), 0);
+    (void) room;
+    (void) topic;                     
 }
 
 void RoomCheck(Client *nc, Server *irc){
@@ -93,28 +96,29 @@ void RoomCheck(Client *nc, Server *irc){
 
 
 
-// unsigned int topic(Client nc, Server irc){
-//     std::map<std::string, std::string> arr;
-//     arr = nc.getTopic();
-//     std::map<std::string, std::string>::iterator it = arr.begin();
-//     std::map<std::string, std::string>::iterator end = arr.end();
-//     int IsChannel = 0;
-//     IsChannel = getRoom(it->first, irc);
-//     if (IsChannel != -1){
-//         if (irc.getChannel()[IsChannel].getClientChannel().find(nc.getFd()) != irc.getChannel()[IsChannel].getClientChannel().end()){
-//             if (it->second == "")
-//                 irc.getChannel()[IsChannel].getTopic();
-//             else{
-//                 if (irc.getChannel()[IsChannel].TopicModeIsRestricted() == false){
-//                     if (irc.getChannel()[IsChannel].getSuperUsers().find(nc.getFd()) != irc.getChannel()[IsChannel].getSuperUsers().end()){
-//                         irc.getChannel()[IsChannel].SetTopic(it->second);
-//                     }
-//                 }
-//             }
-//         }else
-//             return 442;
-//     }
-// }
+unsigned int topic(Client *nc, Server *irc){
+    std::cout << "Topic endter" << std::endl;
+    std::map<std::string, std::string> arr;
+    arr = nc->getTopic();
+    std::map<std::string, std::string>::iterator it = arr.begin();
+    std::map<std::string, std::string>::iterator end = arr.end();
+    int IsChannel = 0;
+    IsChannel = getRoom(it->first, irc);
+    if (IsChannel != -1){
+        if (irc->getChannel()[IsChannel].getClientChannel().find(nc->getFd()) != irc->getChannel()[IsChannel].getClientChannel().end()){
+            if (it->second == "")
+                irc->getChannel()[IsChannel].getTopic();
+            else{
+                if (irc->getChannel()[IsChannel].TopicModeIsRestricted() == false){
+                    if (irc->getChannel()[IsChannel].getSuperUsers().find(nc->getFd()) != irc->getChannel()[IsChannel].getSuperUsers().end()){
+                        irc->getChannel()[IsChannel].SetTopic(it->second);
+                    }
+                }
+            }
+        }else
+            return 442;
+    }
+}
 
 unsigned int isUserChannel(std::map<int, Client *> clientsChannel, std::string nickname){
     std::map<int, Client*>::iterator it = clientsChannel.begin();
@@ -165,7 +169,7 @@ void ActionClient(Client *nc, Server *irc){
         RoomCheck(nc, irc);
     }
     if (nc->getTypeCmd() == "TOPIC"){
-        // topic(nc, irc);
+        topic(nc, irc);
     }
     // return (0);
 }
