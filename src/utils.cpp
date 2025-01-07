@@ -57,13 +57,15 @@ int getRoom(std::string nameRoom, Server *irc){
 }
 
 void EnterRoom(Channel room, std::string topic, Client *nc){
-    std::map<int, Client *> arr = room.getClientChannel();
-    std::map<int, Client *>::iterator it = arr.begin();
-    std::map<int, Client *>::iterator end = arr.end();
+    // std::map<int, Client *> arr = room.getClientChannel();
+    // std::map<int, Client *>::iterator it = arr.begin();
+    // std::map<int, Client *>::iterator end = arr.end();
     // const void *msg  = room.getTopic();
+    // const void *msg = static_cast<void *>(room.getTopic());
     // send(nc->getFd(), room.getTopic(), room.getTopic().size(), 0);
     (void) room;
     (void) topic;                     
+    (void) nc;                     
 }
 
 void RoomCheck(Client *nc, Server *irc){
@@ -76,18 +78,19 @@ void RoomCheck(Client *nc, Server *irc){
     while (it != end)
     {
         indexRoom = getRoom(it->first, irc);
-        std::cout << "is channel :" << indexRoom << std::endl;
+        std::cout << " is index room :" << indexRoom << std::endl;
         if (indexRoom != -1){
             if (irc->getChannel()[indexRoom].GetPassword() == it->second){
                 if (irc->getChannel()[indexRoom].InviteOnlyModeIsActivated() == false){
                     // display topic 
                     // display usr 
-                    std::cout << "did't enter" << std::endl;
+                    std::cout << "Display usr" << std::endl;
                 }
             }
+        }else {
+            std::cout << "add the room->name : " << it->first  << " the len " << it->first.size() << std::endl;
+            irc->addChannel(it->first, it->second, *nc);
         }
-        std::cout << "name of the room"<< it->second << std::endl;
-        irc->addChannel(it->first, it->second, *nc);
         it++;
     }
     std::cout << "end function " << std::endl;
@@ -97,27 +100,36 @@ void RoomCheck(Client *nc, Server *irc){
 
 
 unsigned int topic(Client *nc, Server *irc){
-    std::cout << "Topic endter" << std::endl;
-    std::map<std::string, std::string> arr;
+    std::cout << "Topic enter" << std::endl;
+    std::vector<std::string> arr;
     arr = nc->getTopic();
-    std::map<std::string, std::string>::iterator it = arr.begin();
-    std::map<std::string, std::string>::iterator end = arr.end();
-    int IsChannel = 0;
-    IsChannel = getRoom(it->first, irc);
+    int  IsChannel = getRoom(arr[0], irc);
     if (IsChannel != -1){
         if (irc->getChannel()[IsChannel].getClientChannel().find(nc->getFd()) != irc->getChannel()[IsChannel].getClientChannel().end()){
-            if (it->second == "")
+            if (arr[1] == "")
+            {
+                std::cout << " the second is empty " << std::endl;
                 irc->getChannel()[IsChannel].getTopic();
+
+            }
             else{
-                if (irc->getChannel()[IsChannel].TopicModeIsRestricted() == false){
+                if (irc->getChannel()[IsChannel].TopicModeIsRestricted() == true){
                     if (irc->getChannel()[IsChannel].getSuperUsers().find(nc->getFd()) != irc->getChannel()[IsChannel].getSuperUsers().end()){
-                        irc->getChannel()[IsChannel].SetTopic(it->second);
+                        irc->getChannel()[IsChannel].SetTopic(arr[1]);
+                        std::cout << "change the topic 1" << std::endl;
                     }
+                }else{
+                    irc->getChannel()[IsChannel].SetTopic(arr[1]);
+                        std::cout << "change the topic 2 " << std::endl;
                 }
             }
         }else
             return 442;
+    }else{
+        std::cout << "no room for see the Topic" << std::endl;
+        std::cout << "channel name"<< arr[0] << std::endl;
     }
+    return 403;
 }
 
 unsigned int isUserChannel(std::map<int, Client *> clientsChannel, std::string nickname){
@@ -132,32 +144,36 @@ unsigned int isUserChannel(std::map<int, Client *> clientsChannel, std::string n
 }
 
 
-// unsigned int invite(Client nc, Server irc){
-//     std::map<std::string, std::string> arr;
-//     arr = nc.getInvite();
-//     std::map<std::string, std::string>::iterator it = arr.begin();
-//     std::map<std::string, std::string>::iterator end = arr.end();
-//     unsigned int IsChannel = 0;
-//     IsChannel = getRoom(it->first, irc);
-//     if(IsChannel != -1){
-//         if (irc.getChannel()[IsChannel].getClientChannel().find(nc.getFd()) != irc.getChannel()[IsChannel].getClientChannel().end()){
-//             if (irc.getChannel()[IsChannel].InviteOnlyModeIsActivated() == true){
-//                 if (irc.getChannel()[IsChannel].IsSuperUser(nc.getFd()))
-//                 {
-//                     if (isUserChannel(irc.getChannel()[IsChannel].getClientChannel(), it->second) == 0){
-//                         // irc.getChannel()[IsChannel].AddClient()
-//                     }
-//                 }
-//             }else{
-//                 if (isUserChannel(irc.getChannel()[IsChannel].getClientChannel(), it->second) == 0){
-//                     // irc.getChannel()[IsChannel].AddClient()
-//                 }
-//             }
-//         }else
-//             return 442;
-//     }
-//     return (403);
-// }
+unsigned int invite(Client *nc, Server *irc){
+    std::cout << "invite command :" << std::endl;
+    std::map<std::string, std::string> arr;
+    arr = nc->getInvite();
+    std::map<std::string, std::string>::iterator it = arr.begin();
+    // std::map<std::string, std::string>::iterator end = arr.end();
+    int IsChannel = 0;
+    IsChannel = getRoom(it->first, irc);
+    if(IsChannel != -1){
+        if (irc->getChannel()[IsChannel].getClientChannel().find(nc->getFd()) != irc->getChannel()[IsChannel].getClientChannel().end()){
+            if (irc->getChannel()[IsChannel].InviteOnlyModeIsActivated() == true){
+                if (irc->getChannel()[IsChannel].IsSuperUser(nc->getFd()))
+                {
+                    if (isUserChannel(irc->getChannel()[IsChannel].getClientChannel(), it->second) == 0){
+                        // irc.getChannel()[IsChannel].AddClient()
+                        std::cout << "invite the usr 1" << std::endl;
+                    }
+                }
+            }else{
+                if (isUserChannel(irc->getChannel()[IsChannel].getClientChannel(), it->second) == 0){
+                    // irc.getChannel()[IsChannel].AddClient()
+                    std::cout << "invite the usr 2" << std::endl;
+                }
+            }
+                
+        }else
+            return std::cout << "the usr is not there" << std::endl,  442;
+    }
+    return (403);
+}
 
 
 
@@ -171,7 +187,8 @@ void ActionClient(Client *nc, Server *irc){
     if (nc->getTypeCmd() == "TOPIC"){
         topic(nc, irc);
     }
-    // return (0);
+    if (nc->getTypeCmd() == "INVITE")
+        invite(nc, irc);
 }
 
 void ClientHandler(std::string msg, Client *nc){
@@ -183,7 +200,6 @@ void ClientHandler(std::string msg, Client *nc){
             std::cout << "bug 2" << std::endl;
         if (cmd.get_type_cmd() == "JOIN"){
             nc->setJoin(cmd._join());
-            // RoomCheck(*nc, irc);
             // std::cout << "JOIN" << std::endl;
         }
             // std::cout << "bug 3" << std::endl;

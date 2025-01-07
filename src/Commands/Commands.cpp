@@ -18,7 +18,7 @@ bool is_command(std::string s1, std::string s2){
 
 int index_lastspace(std::string txt){
     unsigned long i = 0;
-    while (i < txt.length() && txt[i] == ' ')
+    while (i < txt.length() && (txt[i] == ' '))
             i++;
     return (i);
 }
@@ -51,6 +51,31 @@ Commands::Commands() {}
 std::string Commands::get_message(std::string msg){return msg;}
 std::string Commands::get_type_cmd() {return this->type_cmds;}
 
+bool isNewLine(std::string word){
+    unsigned long i = 0 ;
+    while ( i < word.length())
+    {
+        if (word[i] == '\n')
+            return (true);
+        i++;
+    }
+    return (false);
+}
+
+std::string noNewLIne(std::string word){
+    std::string newWord = "";
+    unsigned long i = 0 ;
+    while ( i < word.length() && word[i] != '\n')
+    {
+        std::cout << "word : " << "index " << i << word[i] << std::endl;
+        newWord[i] += word[i];
+        i++;
+    }
+    newWord = word.substr(0, i);
+    std::cout << "le mot sans newLine : "<<newWord << std::endl;
+    return newWord;
+}
+
 Commands::Commands(std::string message)
 {
     std::array<std::string , 6> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG"};
@@ -67,10 +92,12 @@ Commands::Commands(std::string message)
     {
          end = this->input.find(' ');
          end += index_lastspace(this->input);
-        //  std::cout << "is the space "<< end  << std::endl;
          if (end == 0 || end  == -1)
             end = (int)this->input.length();       
          word = this->input.substr(0, end);
+         if (isNewLine(word) == true)
+            word = noNewLIne(word);
+         std::cout<< "Le mot : " << word << " size : " << word.size() << std::endl;
          if (_onlyspace(word) == false)
             this->split_cmds.push_back(word);
          this->input.erase(0, end);
@@ -155,16 +182,25 @@ std::map<std::string, std::string> Commands::_join(){
 }
 
 
-std::map<std::string, std::string> Commands::_topic(){
-    std::map<std::string, std::string> arr;
+std::vector<std::string> Commands::_topic(){
+    std::vector<std::string>  arr;
     unsigned long it = 0;
-    std::string space = " ";
-    while (it < this->split_cmds.size() -1)
+    std:: string channelName;
+    std:: string msg;
+    while (it < this->split_cmds.size())
     {
-        if (it >= 1 && it < this->split_cmds.size())
-            arr[this->split_cmds[1]] += space + this->split_cmds[it + 1];
+        if (it == 1){
+            channelName = this->split_cmds[it];
+            arr.push_back(channelName);
+        }else if (it > 0){
+            std::cout << this->split_cmds[it] << std::endl;
+            msg += this->split_cmds[it] + " ";
+        }
         it++;
     }
+    if ( it == 1)
+        msg = "";
+    arr.push_back(msg);
     return (arr);
 }
 

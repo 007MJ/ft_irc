@@ -18,14 +18,14 @@ class Client
         std::string getTypeCmd() ;
         context_mode getMode();
         std::map<std::string, std::string> getJoin();
-        std::map<std::string, std::string> getTopic();
+        std::vector<std::string> getTopic();
         std::map<std::string, std::string> getInvite();
 
         void setIPadd(const std::string& IPadd_);
         void setNickname(const std::string& nickname_);
         void setUsername(const std::string& username_);
         void setJoin(std::map<std::string, std::string> arg);
-        void setTopic(std::map<std::string, std::string> arg);
+        void setTopic(std::vector<std::string> arg);
         void setInvinte(std::map<std::string, std::string> arg);
         void setMode(context_mode arg);
         void setKick(context_mode arg);
@@ -42,7 +42,7 @@ class Client
         // cmd of the clients 
         std::string _typeCmd; // ex: JOIN, TOPIC, INVITE
         std::map<std::string, std::string> _join; // ex: {"#foobar", ""} : {"#foo", "password"} 
-        std::map<std::string, std::string> _topic; // ex: {"#foobar", ":DescriptionTopic"}
+        std::vector<std::string> _topic; // ex: {"#foobar", ":DescriptionTopic"}
         
         std::map<std::string, std::string> _invite ; // ex: {"#foobar", "username"}
         context_mode _mode; //  std::string target = "#channel"

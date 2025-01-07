@@ -33,7 +33,7 @@ class Commands
         std::string get_type_cmd();
         std::map<std::string, std::string> keys_and_value();
         std::map<std::string, std::string> _join();
-        std::map<std::string, std::string> _topic();
+        std::vector<std::string>  _topic();
         std::map<std::string, std::string> _invite ();
         context_mode _mode();
         context_mode _kick();
