@@ -58,7 +58,7 @@ int getRoom(std::string nameRoom, Server *irc){
 
 int getUser(std::string usrName, Server *irc){
     unsigned int index = 0;
-    while (index < irc->getChannel().size()){
+    while (index < irc->getClients().size()){
         if (usrName == irc->getClients()[index].getNickname() || usrName == irc->getClients()[index].getUsername())
             return index;
         index++;
@@ -185,12 +185,62 @@ unsigned int invite(Client *nc, Server *irc){
     return (403);
 }
 
+
+void sendToChannel(Client *nc, Channel room, std::string msg){
+    std::map<int, Client*> arrClient = room.getClientChannel();
+    std::map<int, Client*>::iterator it = arrClient.begin();
+    std::map<int, Client*>::iterator ite = arrClient.end();
+    if (room.IsMember(nc->getFd()))
+    {
+        while (it != ite){
+            // it->second->getFd(); send message 
+            it++;
+        }
+    }
+}
+
+void *stringTovoid(std::string msg){
+
+}
+
+void sendToUser(std::string nameClient, Server *irc){
+    std::string usrName;
+    unsigned int index = 0;
+    unsigned int indexUsr = 0;
+    while (index < nameClient.size())
+    {
+        if (nameClient[index] == ':')
+            index++;
+        else{
+
+            usrName[indexUsr] = nameClient[index];
+            index++;
+            indexUsr++;
+        }
+    }
+    index = getUser(usrName, irc);
+    if (index > 0)
+        // send(irc->getClients()[index].getFd(), "the message", 0);
+}
+
 unsigned int privmsg(Client *nc, Server *irc){
     context_mode prmsg = nc->getPrivmsg();
-    // regarde si c'est channel 
+    unsigned index = 0;
     int roomIndex = getRoom(prmsg.target, irc);
-    int roomIndex = getUser(prmsg.target, irc);
-
+    if (roomIndex > -1)
+        sendToChannel(nc, irc->getChannel()[roomIndex], prmsg.modestring);
+    int usrIndex = getUser(prmsg.target, irc);
+    // if (usrIndex > -1)
+        // send()
+    prmsg.modestring;
+    while (index < prmsg.arguments.size())
+    {
+        roomIndex = getRoom(prmsg.arguments[index], irc);
+        if (roomIndex > -1)
+            sendToChannel(nc, irc->getChannel()[roomIndex], prmsg.modestring);
+        
+    }   
+    // regarde si c'est le room le destinateur ou un user 
     // getRoom(std::string nameRoom, Server *irc)
     // getUser(std::string name, Server *irc)
     return 402;
