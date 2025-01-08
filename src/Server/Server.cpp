@@ -191,6 +191,7 @@ bool Server::IsClientAuth(int fd_)
 {
     return _clients[fd_].getIsAuth();
 }
+std::vector<Client> Server::getClients() {return this->_clients;}
 
 // bool Server::AuthClient(int fd_)
 // {

@@ -240,20 +240,19 @@ context_mode Commands::_privmsg()
 {
    bool isTarget = false;
    unsigned long index = 0;
-    context_mode var;
-    if (this->split_cmds.size() > 2)
-    {
-        var.target = this->split_cmds[1];
-        index++;
-    }
+   context_mode var;
     while (index < this->split_cmds.size()){
-        if (this->split_cmds[index][0] != ':' && isTarget == false){
+        if (index == 0 && this->split_cmds[index] != "PRIVMSG"){
+            var.target = this->split_cmds[index];
+        }
+        else if (this->split_cmds[index][0] != ':' && isTarget == false && (this->split_cmds[index] != "PRIVMSG")){
             std::cout << "this tagert : " << this->split_cmds[index] << std::endl;
             var.arguments.push_back(this->split_cmds[index]);
         }else{
             std::cout << "this missage : " << this->split_cmds[index] << std::endl;
             isTarget = true;
-            var.modestring += split_cmds[index] + " ";
+            if (this->split_cmds[index] != "PRIVMSG")
+                var.modestring += split_cmds[index] + " ";
         }
         index++;
     }

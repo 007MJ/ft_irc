@@ -56,6 +56,16 @@ int getRoom(std::string nameRoom, Server *irc){
     return (-1);
 }
 
+int getUser(std::string usrName, Server *irc){
+    unsigned int index = 0;
+    while (index < irc->getChannel().size()){
+        if (usrName == irc->getClients()[index].getNickname() || usrName == irc->getClients()[index].getUsername())
+            return index;
+        index++;
+    }
+    return (-1);
+}
+
 void EnterRoom(Channel room, std::string topic, Client *nc){
     // std::map<int, Client *> arr = room.getClientChannel();
     // std::map<int, Client *>::iterator it = arr.begin();
@@ -175,7 +185,16 @@ unsigned int invite(Client *nc, Server *irc){
     return (403);
 }
 
+unsigned int privmsg(Client *nc, Server *irc){
+    context_mode prmsg = nc->getPrivmsg();
+    // regarde si c'est channel 
+    int roomIndex = getRoom(prmsg.target, irc);
+    int roomIndex = getUser(prmsg.target, irc);
 
+    // getRoom(std::string nameRoom, Server *irc)
+    // getUser(std::string name, Server *irc)
+    return 402;
+}
 
 
 void ActionClient(Client *nc, Server *irc){
@@ -189,6 +208,8 @@ void ActionClient(Client *nc, Server *irc){
     }
     if (nc->getTypeCmd() == "INVITE")
         invite(nc, irc);
+    if (nc->getTypeCmd() == "PRIVMSG")
+        privmsg(nc, irc);
 }
 
 void ClientHandler(std::string msg, Client *nc){
