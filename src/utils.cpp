@@ -212,14 +212,13 @@ void sendToUser(std::string nameClient, Server *irc){
         if (nameClient[index] == ':')
             index++;
         else{
-
             usrName[indexUsr] = nameClient[index];
             index++;
             indexUsr++;
         }
     }
     index = getUser(usrName, irc);
-    if (index > 0)
+    // if (index > 0)
         // send(irc->getClients()[index].getFd(), "the message", 0);
 }
 
@@ -238,9 +237,9 @@ unsigned int privmsg(Client *nc, Server *irc){
         roomIndex = getRoom(prmsg.arguments[index], irc);
         if (roomIndex > -1)
             sendToChannel(nc, irc->getChannel()[roomIndex], prmsg.modestring);
-        
+        index++;
     }   
-    // regarde si c'est le room le destinateur ou un user 
+    // regarde si c'est le room le destinateur ou un usr   
     // getRoom(std::string nameRoom, Server *irc)
     // getUser(std::string name, Server *irc)
     return 402;
