@@ -186,6 +186,12 @@ unsigned int invite(Client *nc, Server *irc){
 }
 
 
+void sendMsg(std::string msg, Client *nc){
+    const void *pmsg = static_cast<const void *>(&msg);
+    send(nc->getFd(), pmsg, msg.size(), 0);
+}
+
+
 void sendToChannel(Client *nc, Channel room, std::string msg){
     std::map<int, Client*> arrClient = room.getClientChannel();
     std::map<int, Client*>::iterator it = arrClient.begin();
@@ -193,17 +199,14 @@ void sendToChannel(Client *nc, Channel room, std::string msg){
     if (room.IsMember(nc->getFd()))
     {
         while (it != ite){
-            // it->second->getFd(); send message 
+            sendMsg(msg, it->second);
             it++;
         }
     }
 }
 
-void *stringTovoid(std::string msg){
 
-}
-
-void sendToUser(std::string nameClient, Server *irc){
+void sendToUser(std::string nameClient, Server *irc, std::string msg){
     std::string usrName;
     unsigned int index = 0;
     unsigned int indexUsr = 0;
@@ -218,8 +221,8 @@ void sendToUser(std::string nameClient, Server *irc){
         }
     }
     index = getUser(usrName, irc);
-    // if (index > 0)
-        // send(irc->getClients()[index].getFd(), "the message", 0);
+    if (index > 0)
+        sendMsg(msg, &irc->getClients()[index]);
 }
 
 unsigned int privmsg(Client *nc, Server *irc){
@@ -228,20 +231,15 @@ unsigned int privmsg(Client *nc, Server *irc){
     int roomIndex = getRoom(prmsg.target, irc);
     if (roomIndex > -1)
         sendToChannel(nc, irc->getChannel()[roomIndex], prmsg.modestring);
-    int usrIndex = getUser(prmsg.target, irc);
-    // if (usrIndex > -1)
-        // send()
-    prmsg.modestring;
+    sendToUser(prmsg.target, irc, prmsg.modestring);
     while (index < prmsg.arguments.size())
     {
         roomIndex = getRoom(prmsg.arguments[index], irc);
         if (roomIndex > -1)
             sendToChannel(nc, irc->getChannel()[roomIndex], prmsg.modestring);
+        sendToUser(prmsg.arguments[index], irc, prmsg.modestring);
         index++;
-    }   
-    // regarde si c'est le room le destinateur ou un usr   
-    // getRoom(std::string nameRoom, Server *irc)
-    // getUser(std::string name, Server *irc)
+    }
     return 402;
 }
 
