@@ -1,10 +1,15 @@
 #include "Commands.hpp"
 
-bool _onlyspace(std::string string){
-        for (unsigned long i = 0 ; i < string.length(); i++)
-            if (string[i] != ' ')
-                return false;
-        return true;
+int removeCommanSpace(std::string word){
+    unsigned int index = 0;
+    std::string newString = "";
+    while (index < word.size())
+    {  
+        if (word[index] == ' ' || word[index] == ',')
+            return (1);
+        index++;
+    }
+    return (0);
 }
 
 bool is_command(std::string s1, std::string s2){
@@ -67,7 +72,7 @@ std::string noNewLIne(std::string word){
     unsigned long i = 0 ;
     while ( i < word.length() && word[i] != '\n')
     {
-        std::cout << "word : " << "index " << i << word[i] << std::endl;
+        // std::cout << "word : " << "index " << i << word[i] << std::endl;
         newWord[i] += word[i];
         i++;
     }
@@ -76,6 +81,32 @@ std::string noNewLIne(std::string word){
     return newWord;
 }
 
+int isCommaSpace(unsigned int  start, std::string msg)
+{
+    bool isChar = false;
+    while (start <  msg.size())
+    {
+        std::cout << "index word " << msg[start] << std::endl;
+        if (msg[start] == ' ')
+        {
+            isChar = true;
+            while (start <  msg.size() && msg[start] == ' ')
+                start++;
+        }
+        if (msg[start] == ',')
+        {
+            isChar = true;
+            while (start <  msg.size() && msg[start] == ' ')
+                start++;
+            if (start <  msg.size())
+                start++;
+        }
+        if (isChar == true)
+            return (start);
+        start++;
+    }
+    return (start++);
+}
 Commands::Commands(std::string message)
 {
     std::array<std::string , 6> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG"};
@@ -88,19 +119,23 @@ Commands::Commands(std::string message)
     std::string delims;
     std::string word;
     int end = 0;
+    int start = 0;
     while (this->input.empty() == false)
     {
-         end = this->input.find(' ');
-         end += index_lastspace(this->input);
-         if (end == 0 || end  == -1)
+        start = index_lastspace(this->input);
+        end = isCommaSpace(start , this->input);
+        std::cout << "start index " << start << " end index " << end << std::endl;
+         if (end == 0 || end  == -1) 
             end = (int)this->input.length();       
-         word = this->input.substr(0, end);
+         word = this->input.substr(start, end);
+         if (removeCommanSpace(word))
+            word = this->input.substr(0, word.size() - 1);
+
          if (isNewLine(word) == true)
             word = noNewLIne(word);
-         std::cout<< "Le mot : " << word << " size : " << word.size() << std::endl;
-         if (_onlyspace(word) == false)
+         std::cout << "Le mot : " << word << " size : " << word.size() << std::endl;
             this->split_cmds.push_back(word);
-         this->input.erase(0, end);
+         this->input.erase(start, end);
     }
     unsigned long i = 0;
     bool find_cmd = false;

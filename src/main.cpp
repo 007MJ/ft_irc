@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
                               << ft_irc.getClientFds()[i].fd << ": " << buffer << "\n";
                     ClientHandler(buffer, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd));
                     std::cout << "id :" << i << std::endl;
-                    ActionClient(ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
+                    // ActionClient(ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
                 
                 }
                 }
