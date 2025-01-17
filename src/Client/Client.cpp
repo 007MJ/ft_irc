@@ -56,6 +56,9 @@ void Client::setIsAuth()
     _isAuth = true;
 }
 
+void Client::setInfos(bool done){this->_infos = done;}
+bool Client::getInfos() {return this->_infos;}
+
 context_mode Client::getPrivmsg() const {return this->_privmsg;}
 std::string Client::getTypeCmd() {return this->_typeCmd;}
 context_mode Client::getMode() {return this->_mode;}

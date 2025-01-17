@@ -107,6 +107,7 @@ int isCommaSpace(unsigned int  start, std::string msg)
     }
     return (start++);
 }
+
 Commands::Commands(std::string message)
 {
     std::array<std::string , 6> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG"};

@@ -81,10 +81,15 @@ unsigned int isUserChannel(std::map<int, Client *> clientsChannel, std::string n
 }
 
 
-void sendMsg(std::string msg, Client *nc, int codeError){
-    const void *pmsg = static_cast<const void *>(&msg);
-    send(nc->getFd(), pmsg, msg.size(), 0);
-    (void)codeError;
+void sendMsg(Client *author, std::string msg, Client *nc, int codeError){
+
+    if (author != NULL)
+        if (author->getFd() == nc->getFd())
+            return ;
+        const void *pmsg = static_cast<const void *>(&msg);
+        send(nc->getFd(), pmsg, msg.size(), 0);
+        (void)codeError;
+
 }
 
 
@@ -95,14 +100,14 @@ void sendToChannel(Client *nc, Channel room, std::string msg){
     if (room.IsMember(nc->getFd()))
     {
         while (it != ite){
-            sendMsg(msg, it->second, 0);
+            sendMsg(nc, msg, it->second, 0);
             it++;
         }
     }
 }
 
 
-void sendToUser(std::string nameClient, Server *irc, std::string msg){
+void sendToUser(Client *author, std::string nameClient, Server *irc, std::string msg){
     std::string usrName;
     unsigned int index = 0;
     unsigned int indexUsr = 0;
@@ -118,7 +123,7 @@ void sendToUser(std::string nameClient, Server *irc, std::string msg){
     }
     index = getUser(usrName, irc);
     if (index > 0)
-        sendMsg(msg, &irc->getClients()[index], 0);
+        sendMsg(author, msg, &irc->getClients()[index], 0);
 }
 
 unsigned int privmsg(Client *nc, Server *irc){
@@ -127,13 +132,13 @@ unsigned int privmsg(Client *nc, Server *irc){
     int roomIndex = getRoom(prmsg.target, irc);
     if (roomIndex > -1)
         sendToChannel(nc, irc->getChannel()[roomIndex], prmsg.modestring);
-    sendToUser(prmsg.target, irc, prmsg.modestring);
+    sendToUser(nc, prmsg.target, irc, prmsg.modestring);
     while (index < prmsg.arguments.size())
     {
         roomIndex = getRoom(prmsg.arguments[index], irc);
         if (roomIndex > -1)
             sendToChannel(nc, irc->getChannel()[roomIndex], prmsg.modestring);
-        sendToUser(prmsg.arguments[index], irc, prmsg.modestring);
+        sendToUser(nc, prmsg.arguments[index], irc, prmsg.modestring);
         index++;
     }
     return 402;
@@ -189,7 +194,6 @@ void RoomCheck(Client *nc, Server *irc){
         it++;
     }
     std::cout << "end function " << std::endl;
-    // return 0;
 }
 
 
@@ -200,7 +204,7 @@ void displayRoom(Channel room){
 
     while (it != end)
     {
-        sendMsg(it->second->getNickname(), it->second, 0);
-        sendMsg(room.getTopic(), it->second, 0);
+        sendMsg(NULL, it->second->getNickname(), it->second, 0);
+        sendMsg(NULL, room.getTopic(), it->second, 0);
     }
 }

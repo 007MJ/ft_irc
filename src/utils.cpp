@@ -33,41 +33,9 @@ bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_){
 
 
 
-// join chanal 
-    // 1.  the user must be invited if the channel is invite-only;
-    // 2. the user's nick/username/hostname must not match any active bans;
-    // 3. the correct key (password) must be given if it is set.
-
-    // JOIN succesful 
-        // sent the channel's topic (using RPL_TOPIC)
-        // the list of users who are on the channel (using RPL_NAMREPLY), which must include the user joining
 
 
-// Chanal mode 
-    // 
-
-
-
-
-
-
-
-void ActionClient(Client *nc, Server *irc){
-    std::cout << "c'est empty" << std::endl;
-    if (nc->getTypeCmd() == "JOIN"){
-        std::cout << "Enter in JOIN Cmd" << std::endl;
-        RoomCheck(nc, irc);
-    }
-    if (nc->getTypeCmd() == "TOPIC"){
-        topic(nc, irc);
-    }
-    if (nc->getTypeCmd() == "INVITE")
-        invite(nc, irc);
-    if (nc->getTypeCmd() == "PRIVMSG")
-        privmsg(nc, irc);
-}
-
-void ClientHandler(std::string msg, Client *nc){
+void ClientHandler(std::string msg, Client *nc, Server *irc){
     Commands cmd(msg);
     if (nc)
     {
@@ -77,6 +45,7 @@ void ClientHandler(std::string msg, Client *nc){
         if (cmd.get_type_cmd() == "JOIN"){
             nc->setJoin(cmd._join());
             std::cout << "JOIN" << std::endl;
+            RoomCheck(nc, irc);
         }
             // std::cout << "bug 3" << std::endl;
         if (cmd.get_type_cmd() == "MODE"){
@@ -85,7 +54,7 @@ void ClientHandler(std::string msg, Client *nc){
         }
         if (cmd.get_type_cmd() == "TOPIC"){
             nc->setTopic(cmd._topic());
-            std::cout << "TOPIC" << std::endl;
+            topic(nc, irc);
         }
         if (cmd.get_type_cmd() == "KICK"){
             nc->setKick(cmd._kick());
@@ -94,12 +63,18 @@ void ClientHandler(std::string msg, Client *nc){
         if (cmd.get_type_cmd() == "INVITE"){
             nc->setInvinte(cmd._invite ());
             std::cout << "INVITE" << std::endl;
+            invite(nc, irc);
         }
         if (cmd.get_type_cmd() == "PRIVMSG"){
              std::cout << "utils  privmsg " << std::endl;
-            nc->setPrivmsg(cmd._privmsg());
+             nc->setPrivmsg(cmd._privmsg());
+            privmsg(nc, irc);
         }
 
     }else 
         std::cout<< "can't get client :" << std::endl;
 }
+
+
+
+

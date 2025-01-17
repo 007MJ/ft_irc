@@ -32,6 +32,8 @@ class Client
         void setPrivmsg(context_mode arg);
         void setTypeCmd(std::string type);
         void setIsAuth();
+        void setInfos(bool done);
+        bool getInfos();
 
     private:
         int _fd;
@@ -39,6 +41,7 @@ class Client
         std::string _nickname;
         std::string _username;
         bool _isAuth ;
+        bool _infos ; 
         // cmd of the clients 
         std::string _typeCmd; // ex: JOIN, TOPIC, INVITE
         std::map<std::string, std::string> _join; // ex: {"#foobar", ""} : {"#foo", "password"} 
