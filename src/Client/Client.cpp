@@ -62,6 +62,7 @@ bool Client::getInfos() {return this->_infos;}
 context_mode Client::getPrivmsg() const {return this->_privmsg;}
 std::string Client::getTypeCmd() {return this->_typeCmd;}
 context_mode Client::getMode() {return this->_mode;}
+context_mode Client::getKick() {return this->_kick;}
 std::map<std::string, std::string> Client::getJoin() {return this->_join;}
 std::vector<std::string> Client::getTopic() {return this->_topic;}
 std::map<std::string, std::string> Client::getInvite() { return this->_invite;}

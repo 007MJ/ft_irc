@@ -51,13 +51,16 @@ void ClientHandler(std::string msg, Client *nc, Server *irc){
         if (cmd.get_type_cmd() == "MODE"){
             nc->setMode(cmd._mode());
             std::cout << "MODE" << std::endl;
+            mode(nc, irc);
         }
         if (cmd.get_type_cmd() == "TOPIC"){
+            std::cout << " TOPIC " << std::endl;
             nc->setTopic(cmd._topic());
             topic(nc, irc);
         }
         if (cmd.get_type_cmd() == "KICK"){
             nc->setKick(cmd._kick());
+            kick(nc, irc);
             std::cout << "KICK" << std::endl;
         }
         if (cmd.get_type_cmd() == "INVITE"){
@@ -66,7 +69,7 @@ void ClientHandler(std::string msg, Client *nc, Server *irc){
             invite(nc, irc);
         }
         if (cmd.get_type_cmd() == "PRIVMSG"){
-             std::cout << "utils  privmsg " << std::endl;
+             std::cout << " PRIVMSG " << std::endl;
              nc->setPrivmsg(cmd._privmsg());
             privmsg(nc, irc);
         }

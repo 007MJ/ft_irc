@@ -69,7 +69,7 @@ bool Server::SetUp()
 }
 bool Server::AddClient(int clientFd_)
 {
-    Client newClient(clientFd_, "127.0.0.1", "");
+    Client newClient(clientFd_, "127.0.0.1", "bob");
     newClient.setInfos(false);
     _clients.push_back(newClient);
 
