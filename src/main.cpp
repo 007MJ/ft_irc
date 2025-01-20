@@ -68,6 +68,9 @@ int main(int argc, char *argv[])
 
                 if (!ft_irc.IsClientAuth(ft_irc.getClientFds()[i].fd))
                 {
+                    // std::cout << "------------------------------------\n";
+                    // std::cout << "Client fd: " << ft_irc.getClientFds()[i].fd << std::endl;
+                    // std::cout << "------------------------------------\n";
                     if (!ft_irc.AuthClient(ft_irc.getClientFds()[i].fd))
                     {
                         continue; // Skip to the next client if awaiting authentication
@@ -94,7 +97,7 @@ int main(int argc, char *argv[])
                     std::cout << "Received from client " 
                               << ft_irc.getClientFds()[i].fd << ": " << buffer << "\n";
                     ClientHandler(buffer, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
-                    std::cout << "id :" << i << std::endl;
+                    // std::cout << "id :" << i << std::endl;
                     // ActionClient(ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
                 
                 }

@@ -32,18 +32,12 @@ class Client
         void setKick(context_mode arg);
         void setPrivmsg(context_mode arg);
         void setTypeCmd(std::string type);
-        std::string getTypeCmd();
-        std::map<std::string, std::string> getJoin();
-        std::map<std::string, std::string> getTopic();
-        std::map<std::string, std::string> getInvite();
-        context_mode getMode();
-        context_mode getKick();
         void setIsAuth();
         void setInfos(bool done);
         bool getInfos();
 
     private:
-        int _fd;
+        int _fd ;
         std::string _IPadd;
         std::string _nickname;
         std::string _username;
@@ -73,7 +67,7 @@ class Client
 /*
 
 ∗ TOPIC - Change or view the channel topic
-∗ MODE - Change the channel’s mode:
+∗ MODE - Change the channel's mode:
     · i: Set/remove Invite-only channel
     · t: Set/remove the restrictions of the TOPIC command to channel
     operators

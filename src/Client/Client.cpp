@@ -32,8 +32,10 @@ const std::string& Client::getIPadd() const
 
 bool Client::getIsAuth() const
 {
+    // if(_isAuth){ std::cout << "Client with fd: " << _fd << " is auth" << std::endl;}
     return _isAuth;
 }
+
 
 
 void Client::setIPadd(const std::string &IPadd_)
@@ -73,10 +75,3 @@ void Client::setMode(context_mode arg) {this->_mode = arg;}
 void Client::setKick(context_mode arg) {this->_kick = arg;}
 void Client::setPrivmsg(context_mode arg)  {this->_privmsg = arg;}
 void Client::setTypeCmd(std::string type) {this->_typeCmd = type;}
-
-std::string Client::getTypeCmd() {return this->_typeCmd;}
-std::map<std::string, std::string> Client::getJoin() {return this->_join ;}
-std::map<std::string, std::string> Client::getTopic() {return this->_topic;}
-std::map<std::string, std::string> Client::getInvite() { return this->_invite;}
-context_mode Client::getMode() {return this->_mode;}
-context_mode Client::getKick() {return this->_kick;}

@@ -281,8 +281,6 @@ void kick(Client *nc, Server *irc)
         if(chann.IsSuperUser(nc->getFd()) && chann.IsMember(usrIndex))
         {
             chann.RemoveClient(usrIndex);
-            if (chann.getNbClients() == 0)
-                 irc->getChannel().erase(irc->getChannel().begin() + index);
             std::cout << "Client with index " << usrIndex << " removed!\n";
             return;
         }

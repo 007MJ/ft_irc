@@ -71,10 +71,11 @@ bool Server::SetUp()
 bool Server::AddClient(int clientFd_)
 {
     Client newClient(clientFd_, "127.0.0.1", "bob");
-    newClient.setInfos(false);
+    // std::cout << "###### Client AddClient() #########, fd: " << clientFd_ << std::endl;
+    // newClient.setInfos(false);
     _clients.push_back(newClient);
 
-    for (int i = 0; i < MAX_CLIENTS; ++i)
+    for (int i = 1; i < MAX_CLIENTS; ++i)
     {
         if (_clientFds[i].fd == -1)
         { // -1 ==> available slot
@@ -142,6 +143,7 @@ bool Server::AcceptClient()
     {
         client_len = sizeof(client_addr);
         client_fd = accept(_sockFd, (struct sockaddr *)&client_addr, &client_len);
+        // std::cout << "###### Client accepted, fd: " << client_fd << std::endl;
         if (client_fd < 0)
         {
             errorMsg("Error while trying to accept new connection.");
@@ -151,7 +153,8 @@ bool Server::AcceptClient()
             errorMsg("fcntl() failed\n");
             return false;
         }
-        else if (!AddClient(client_fd))
+        // std::cout << "###### Client fcntl() #########, fd: " << client_fd << std::endl;
+        if (!AddClient(client_fd))
         {
             std::cerr << "Server full. Rejecting new connection.\n";
             DeleteClient(client_fd);
@@ -195,7 +198,12 @@ bool Server::AcceptClient()
 
 bool Server::IsClientAuth(int fd_)
 {
-    return _clients[fd_].getIsAuth();
+    int cliIndex = getClientIndex(fd_);
+    if(cliIndex == -1){
+        std::cout << "Client with fd: " << fd_ << " not found" << std::endl;
+        return false;
+    }    
+    return _clients[cliIndex].getIsAuth();
 }
 std::vector<Client> Server::getClients() {return this->_clients;}
 
@@ -264,7 +272,12 @@ bool Server::AuthClient(int fd_)
 
     if (input == _password)
     {
-        _clients[fd_].setIsAuth();
+        int cliIndex = getClientIndex(fd_);
+        if(cliIndex == -1){
+            std::cout << "Client with fd: " << fd_ << " not found" << std::endl;
+            return false;
+        }
+        _clients[cliIndex].setIsAuth();
         if (send(fd_, "You have been successfully authenticated!\n", 43, 0) < 1)
         {
             std::cout << "Error sending authentication success message to client " << fd_ << "\n";
@@ -283,7 +296,16 @@ bool Server::AuthClient(int fd_)
         return false; // Wait for the client to try again
         
     }
-    std::cout << " end of authClient " << std::endl;
+    // std::cout << " end of authClient " << std::endl;
+}
+
+int Server::getClientIndex(int fd_){
+    for (size_t i = 0; i < _clients.size(); ++i)
+    {
+        if (_clients[i].getFd() == fd_)
+            return static_cast<int>(i); // Return the index as an integer
+    }
+    return -1; // Return -1 if the client is not found
 }
 
 

@@ -36,6 +36,7 @@ public:
     std::vector<Channel> getChannel();
     std::vector<Client> getClients();
     void addChannel(std::string name, std::string pwd, Client &nc);
+    int getClientIndex(int fd_);
     // void remove(std::string room);
 
 
