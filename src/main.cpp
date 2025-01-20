@@ -71,10 +71,12 @@ int main(int argc, char *argv[])
                     // std::cout << "------------------------------------\n";
                     // std::cout << "Client fd: " << ft_irc.getClientFds()[i].fd << std::endl;
                     // std::cout << "------------------------------------\n";
-                    if (!ft_irc.AuthClient(ft_irc.getClientFds()[i].fd))
+                    if (!ft_irc.AuthClient(ft_irc.getClientFds()[i].fd) || !ft_irc.SetClientInfos(ft_irc.getClientFds()[i].fd))
                     {
                         continue; // Skip to the next client if awaiting authentication
                     }
+                    else
+                        std::cout << "--------------" << ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->getUsername() << " ------------\n";
                 }
                 // Le client doit s'identifier (Nickname)
                 else

@@ -251,22 +251,11 @@ bool Server::AuthClient(int fd_)
 
     // Receive input
     char buffer[BUFFER_SIZE];
-    int n = recv(fd_, buffer, sizeof(buffer) - 1, 0);
-    if (n <= 0)
-    {
-        if (n == 0)
-        {
-            std::cout << "Client " << fd_ << " disconnected\n";
-        }
-        else
-        {
-            std::cout << "Error receiving data from client " << fd_ << "\n";
-        }
+    if(!clean_recv(fd_, buffer)){
         DeleteClient(fd_);
-        return false; // Disconnect the client
+        return false;
     }
 
-    buffer[n] = '\0'; // Null-terminate input
     std::string input(buffer);
     input.erase(input.find_last_not_of("\r\n") + 1);
 
@@ -278,25 +267,31 @@ bool Server::AuthClient(int fd_)
             return false;
         }
         _clients[cliIndex].setIsAuth();
-        if (send(fd_, "You have been successfully authenticated!\n", 43, 0) < 1)
-        {
-            std::cout << "Error sending authentication success message to client " << fd_ << "\n";
+        return clean_send(fd_, "You have been successfully authenticated!\n");
+    }
+    return clean_send(fd_, "Wrong password, authentication failed. Try again.\n"), false;
+}
+
+bool Server::SetClientInfos(int fd_)
+{
+    char buff[BUFFER_SIZE];
+    int cliIndex = getClientIndex(fd_);
+        if(cliIndex == -1){
+            std::cout << "Client with fd: " << fd_ << " not found" << std::endl;
             return false;
         }
-        return true;
+
+    if(!promptForUsername(fd_, buff))
+        return false;
+    std::string username(buff);
+    username.erase(username.find_last_not_of("\r\n") + 1);
+    if(username.empty()){
+        //TODO change to en error message;
+        clean_send(fd_, "Username cannot be empty!\n");
+        return false;
     }
-    else
-    {
-        
-        if (send(fd_, "Wrong password, authentication failed. Try again\n", 50, 0) < 1)
-        {
-            std::cout << "Error sending authentication failure message to client " << fd_ << "\n";
-            return false;
-        }
-        return false; // Wait for the client to try again
-        
-    }
-    // std::cout << " end of authClient " << std::endl;
+    _clients[cliIndex].setUsername(username);
+    return std::cout << "Username successfully set to: " + username << std::endl, true;
 }
 
 int Server::getClientIndex(int fd_){
@@ -310,6 +305,7 @@ int Server::getClientIndex(int fd_){
 
 
 std::vector<Channel> Server::getChannel(){return this->_channel;}
+
 void Server::addChannel(std::string name, std::string pwd, Client &nc) {
     std::cout << "server add channel" << std::endl;
     Channel newRoom(name, pwd, nc);

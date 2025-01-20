@@ -9,6 +9,10 @@
 
 void errorMsg(const std::string &msg);
 bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_);
+bool clean_recv(int fd_, char *buffer);
+bool clean_send(int fd_, const char *buff);
+bool promptForUsername(int fd_, char *buff);
+
 
 // function pour faire les commandes
 void ClientHandler(std::string msg, Client *nc, Server *irc);

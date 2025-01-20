@@ -1,4 +1,5 @@
 #include "../includes/utils.hpp"
+#include "Server/Server.hpp"
 #include <cstring>
 #include <cstdlib>
 
@@ -81,3 +82,31 @@ void ClientHandler(std::string msg, Client *nc, Server *irc){
 
 
 
+bool clean_recv(int fd_, char *buffer){
+    int n = recv(fd_, buffer, sizeof(buffer) - 1, 0);
+    if (n <= 0)
+    {
+        if (n == 0)
+            std::cout << "Client " << fd_ << " disconnected\n";
+        else
+            std::cout << "Error receiving data from client " << fd_ << "\n";
+        return false; // Disconnect the client
+    }
+    buffer[n] = '\0'; // Null-terminate input
+    return true;
+}
+bool clean_send(int fd_, const char *buff){
+    if(send(fd_, buff, strlen(buff), 0 ) < 1){
+        std::cerr << "Error while trying to send message to client!" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool promptForUsername(int fd_, char *buff){
+    // Step 1: Prompt the client for their username
+    if (!clean_send(fd_, "Please enter your username: \n")) {
+        return false; // Return false if sending the prompt failed
+    }
+    return clean_recv(fd_, buff);
+}
