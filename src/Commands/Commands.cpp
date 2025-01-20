@@ -1,10 +1,15 @@
 #include "Commands.hpp"
 
-bool _onlyspace(std::string string){
-        for (unsigned long i = 0 ; i < string.length(); i++)
-            if (string[i] != ' ')
-                return false;
-        return true;
+int removeCommanSpace(std::string word){
+    unsigned int index = 0;
+    std::string newString = "";
+    while (index < word.size())
+    {  
+        if (word[index] == ' ' || word[index] == ',')
+            return (1);
+        index++;
+    }
+    return (0);
 }
 
 bool is_command(std::string s1, std::string s2){
@@ -18,12 +23,12 @@ bool is_command(std::string s1, std::string s2){
 
 int index_lastspace(std::string txt){
     unsigned long i = 0;
-    while (i < txt.length() && txt[i] == ' ')
+    while (i < txt.length() && (txt[i] == ' '))
             i++;
     return (i);
 }
 
-bool too_much_cmds(std::vector<std::string> split_cmd, std::array<std::string , 5> arr){
+bool too_much_cmds(std::vector<std::string> split_cmd, std::array<std::string , 6> arr){
     int count = 0;
     unsigned long index = 0;
     unsigned long index_arr = 0;
@@ -51,9 +56,61 @@ Commands::Commands() {}
 std::string Commands::get_message(std::string msg){return msg;}
 std::string Commands::get_type_cmd() {return this->type_cmds;}
 
+bool isNewLine(std::string word){
+    unsigned long i = 0 ;
+    while ( i < word.length())
+    {
+        if (word[i] == '\n')
+            return (true);
+        i++;
+    }
+    return (false);
+}
+
+std::string noNewLIne(std::string word){
+    std::string newWord = "";
+    unsigned long i = 0 ;
+    while ( i < word.length() && word[i] != '\n')
+    {
+        // std::cout << "word : " << "index " << i << word[i] << std::endl;
+        newWord[i] += word[i];
+        i++;
+    }
+    newWord = word.substr(0, i);
+    std::cout << "le mot sans newLine : "<<newWord << std::endl;
+    return newWord;
+}
+
+int isCommaSpace(unsigned int  start, std::string msg)
+{
+    bool isChar = false;
+    while (start <  msg.size())
+    {
+        std::cout << "index word " << msg[start] << std::endl;
+        if (msg[start] == ' ')
+        {
+            isChar = true;
+            while (start <  msg.size() && msg[start] == ' ')
+                start++;
+        }
+        if (msg[start] == ',')
+        {
+            isChar = true;
+            while (start <  msg.size() && msg[start] == ' ')
+                start++;
+            if (start <  msg.size())
+                start++;
+        }
+        if (isChar == true)
+            return (start);
+        start++;
+    }
+    return (start++);
+}
+
 Commands::Commands(std::string message)
 {
-    std::array<std::string , 5> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE"};
+    std::array<std::string , 6> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG"};
     for (unsigned long i = 0; i < arr.size(); i ++)
     {
         name_cmds.push_back(arr[i]);
@@ -63,17 +120,23 @@ Commands::Commands(std::string message)
     std::string delims;
     std::string word;
     int end = 0;
+    int start = 0;
     while (this->input.empty() == false)
     {
-         end = this->input.find(' ');
-         end += index_lastspace(this->input);
-        //  std::cout << "is the space "<< end  << std::endl;
-         if (end == 0 || end  == -1)
+        start = index_lastspace(this->input);
+        end = isCommaSpace(start , this->input);
+        std::cout << "start index " << start << " end index " << end << std::endl;
+         if (end == 0 || end  == -1) 
             end = (int)this->input.length();       
-         word = this->input.substr(0, end);
-         if (_onlyspace(word) == false)
+         word = this->input.substr(start, end);
+         if (removeCommanSpace(word))
+            word = this->input.substr(0, word.size() - 1);
+
+         if (isNewLine(word) == true)
+            word = noNewLIne(word);
+         std::cout << "Le mot : " << word << " size : " << word.size() << std::endl;
             this->split_cmds.push_back(word);
-         this->input.erase(0, end);
+         this->input.erase(start, end);
     }
     unsigned long i = 0;
     bool find_cmd = false;
@@ -155,16 +218,25 @@ std::map<std::string, std::string> Commands::_join(){
 }
 
 
-std::map<std::string, std::string> Commands::_topic(){
-    std::map<std::string, std::string> arr;
+std::vector<std::string> Commands::_topic(){
+    std::vector<std::string>  arr;
     unsigned long it = 0;
-    std::string space = " ";
-    while (it < this->split_cmds.size() -1)
+    std:: string channelName;
+    std:: string msg;
+    while (it < this->split_cmds.size())
     {
-        if (it >= 1 && it < this->split_cmds.size())
-            arr[this->split_cmds[1]] += space + this->split_cmds[it + 1];
+        if (it == 1){
+            channelName = this->split_cmds[it];
+            arr.push_back(channelName);
+        }else if (it > 0){
+            std::cout << this->split_cmds[it] << std::endl;
+            msg += this->split_cmds[it] + " ";
+        }
         it++;
     }
+    if ( it == 1)
+        msg = "";
+    arr.push_back(msg);
     return (arr);
 }
 
@@ -199,6 +271,32 @@ context_mode Commands::_mode(){
 }
 
 context_mode Commands::_kick(){return (this->_mode());}
+
+context_mode Commands::_privmsg()
+{
+   bool isTarget = false;
+   unsigned long index = 0;
+   context_mode var;
+    while (index < this->split_cmds.size()){
+         if (this->split_cmds[index][0] != ':' && isTarget == false && (this->split_cmds[index] != "PRIVMSG"))
+         {
+            std::cout << "this tagert : " << this->split_cmds[index] << std::endl;
+            var.arguments.push_back(this->split_cmds[index]);
+            index++;
+        }else{
+            std::cout << "this missage : " << this->split_cmds[index] << std::endl;
+            if (this->split_cmds[index][0] == ':')
+                isTarget = true;
+            if (this->split_cmds[index] != "PRIVMSG" && this->split_cmds[index][0] != '#' && isTarget == true)
+                var.modestring += split_cmds[index] + " ";
+            index++;
+        }
+    }
+
+    std::cout<< " modestring " << var.modestring << std::endl;
+    std::cout<< " target " << var.arguments[0] << std::endl;
+    return var;
+}
 
 
 

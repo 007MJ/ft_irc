@@ -35,6 +35,10 @@ public:
 
     int getChannelLimit() const;
     void SetChannelLimit(int limit_);
+    std::map<int, Client*> getClientChannel();
+    std::set<int> getSuperUsers();
+    int getNbClients();
+
 
         
 

@@ -70,7 +70,8 @@ bool Server::SetUp()
 }
 bool Server::AddClient(int clientFd_)
 {
-    Client newClient(clientFd_, "127.0.0.1", "Bob");
+    Client newClient(clientFd_, "127.0.0.1", "bob");
+    newClient.setInfos(false);
     _clients.push_back(newClient);
 
     for (int i = 0; i < MAX_CLIENTS; ++i)
@@ -196,6 +197,7 @@ bool Server::IsClientAuth(int fd_)
 {
     return _clients[fd_].getIsAuth();
 }
+std::vector<Client> Server::getClients() {return this->_clients;}
 
 // bool Server::AuthClient(int fd_)
 // {
@@ -235,6 +237,7 @@ bool Server::IsClientAuth(int fd_)
 
 // }
 
+
 bool Server::AuthClient(int fd_)
 {
 
@@ -259,7 +262,6 @@ bool Server::AuthClient(int fd_)
     std::string input(buffer);
     input.erase(input.find_last_not_of("\r\n") + 1);
 
-    // Verify the password
     if (input == _password)
     {
         _clients[fd_].setIsAuth();
@@ -272,11 +274,22 @@ bool Server::AuthClient(int fd_)
     }
     else
     {
+        
         if (send(fd_, "Wrong password, authentication failed. Try again\n", 50, 0) < 1)
         {
             std::cout << "Error sending authentication failure message to client " << fd_ << "\n";
             return false;
         }
         return false; // Wait for the client to try again
+        
     }
+    std::cout << " end of authClient " << std::endl;
+}
+
+
+std::vector<Channel> Server::getChannel(){return this->_channel;}
+void Server::addChannel(std::string name, std::string pwd, Client &nc) {
+    std::cout << "server add channel" << std::endl;
+    Channel newRoom(name, pwd, nc);
+    this->_channel.push_back(newRoom);
 }

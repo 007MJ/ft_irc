@@ -7,6 +7,7 @@ void errorMsg(const std::string &msg){
     write(2, formattedMsg.c_str(), formattedMsg.length());
 }
 
+
 bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_){
     {
         for(size_t i = 0; i < std::strlen(argv[1]); i++){
@@ -30,7 +31,11 @@ bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_){
     return true;
 }
 
-void ClientHandler(std::string msg, Client *nc){
+
+
+
+
+void ClientHandler(std::string msg, Client *nc, Server *irc){
     Commands cmd(msg);
     if (nc)
     {
@@ -40,25 +45,39 @@ void ClientHandler(std::string msg, Client *nc){
         if (cmd.get_type_cmd() == "JOIN"){
             nc->setJoin(cmd._join());
             std::cout << "JOIN" << std::endl;
+            RoomCheck(nc, irc);
         }
             // std::cout << "bug 3" << std::endl;
         if (cmd.get_type_cmd() == "MODE"){
             nc->setMode(cmd._mode());
             std::cout << "MODE" << std::endl;
+            mode(nc, irc);
         }
         if (cmd.get_type_cmd() == "TOPIC"){
+            std::cout << " TOPIC " << std::endl;
             nc->setTopic(cmd._topic());
-            std::cout << "TOPIC" << std::endl;
+            topic(nc, irc);
         }
         if (cmd.get_type_cmd() == "KICK"){
             nc->setKick(cmd._kick());
+            kick(nc, irc);
             std::cout << "KICK" << std::endl;
         }
         if (cmd.get_type_cmd() == "INVITE"){
             nc->setInvinte(cmd._invite ());
             std::cout << "INVITE" << std::endl;
+            invite(nc, irc);
+        }
+        if (cmd.get_type_cmd() == "PRIVMSG"){
+             std::cout << " PRIVMSG " << std::endl;
+             nc->setPrivmsg(cmd._privmsg());
+            privmsg(nc, irc);
         }
 
     }else 
         std::cout<< "can't get client :" << std::endl;
 }
+
+
+
+

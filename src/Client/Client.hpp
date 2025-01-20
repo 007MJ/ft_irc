@@ -14,15 +14,23 @@ class Client
         const std::string& getUsername() const;
         const std::string& getIPadd() const;
         bool getIsAuth() const;
+        context_mode getPrivmsg() const;
+        std::string getTypeCmd() ;
+        context_mode getMode();
+        std::map<std::string, std::string> getJoin();
+        std::vector<std::string> getTopic();
+        std::map<std::string, std::string> getInvite();
+        context_mode getKick();
 
         void setIPadd(const std::string& IPadd_);
         void setNickname(const std::string& nickname_);
         void setUsername(const std::string& username_);
         void setJoin(std::map<std::string, std::string> arg);
-        void setTopic(std::map<std::string, std::string> arg);
+        void setTopic(std::vector<std::string> arg);
         void setInvinte(std::map<std::string, std::string> arg);
         void setMode(context_mode arg);
         void setKick(context_mode arg);
+        void setPrivmsg(context_mode arg);
         void setTypeCmd(std::string type);
         std::string getTypeCmd();
         std::map<std::string, std::string> getJoin();
@@ -31,6 +39,8 @@ class Client
         context_mode getMode();
         context_mode getKick();
         void setIsAuth();
+        void setInfos(bool done);
+        bool getInfos();
 
     private:
         int _fd;
@@ -38,10 +48,11 @@ class Client
         std::string _nickname;
         std::string _username;
         bool _isAuth ;
+        bool _infos ; 
         // cmd of the clients 
         std::string _typeCmd; // ex: JOIN, TOPIC, INVITE
         std::map<std::string, std::string> _join; // ex: {"#foobar", ""} : {"#foo", "password"} 
-        std::map<std::string, std::string> _topic; // ex: {"#foobar", ":DescriptionTopic"}
+        std::vector<std::string> _topic; // ex: {"#foobar", ":DescriptionTopic"}
         
         std::map<std::string, std::string> _invite ; // ex: {"#foobar", "username"}
         context_mode _mode; //  std::string target = "#channel"
@@ -52,6 +63,7 @@ class Client
         context_mode _kick; //  std::string target = "#channel"
                             //  std::string modestring = "+o"
                             //  std::vector<std::string> arguments = "userName"
+        context_mode _privmsg;
     
 };
 

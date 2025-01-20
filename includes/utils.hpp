@@ -9,6 +9,25 @@
 
 void errorMsg(const std::string &msg);
 bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_);
-void ClientHandler(std::string msg, Client *nc);
+
+// function pour faire les commandes
+void ClientHandler(std::string msg, Client *nc, Server *irc);
+// void ActionClient(Client *nc, Server *irc);
+void RoomCheck(Client *nc, Server *irc);
+int getRoomindex(std::string nameRoom, Server *irc);
+unsigned int topic(Client *nc, Server *irc);
+unsigned int invite(Client *nc, Server *irc);
+int getUser(std::string usrName, Server *irc);
+void sendMsg(std::string msg, Client *nc, int codeError);
+void sendToChannel(Channel room, std::string msg);
+void sendToUser(Client *author, std::string nameClient, Server *irc, std::string msg);
+unsigned int privmsg(Client *nc, Server *irc);
+int isUserChannel(std::map<int, Client *> clientsChannel, std::string nickname);
+void displayRoom(Client *nc, Channel room);
+// bool fillForm(Client *nc);
+// void sendForm(Client *nc);
+void kick(Client *nc, Server *irc);
+void mode(Client *nc, Server *irc);
+// void mode(client *nc, Server *irc);
 
 #endif

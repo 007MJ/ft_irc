@@ -72,6 +72,7 @@ void Channel::SetPassword(const std::string &password_)
     _password = password_;
 }
 
+
 const std::string &Channel::getTopic() const
 {
     return _topic;
@@ -111,3 +112,5 @@ void Channel::SetChannelLimit(int limit_)
 {
     _limit = limit_;
 }
+std::map<int, Client*> Channel::getClientChannel() {return this-> _clients;}
+std::set<int> Channel::getSuperUsers() {return this->_superUsers;}

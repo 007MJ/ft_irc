@@ -54,11 +54,24 @@ void Client::setIsAuth()
 {
     _isAuth = true;
 }
+
+void Client::setInfos(bool done){this->_infos = done;}
+bool Client::getInfos() {return this->_infos;}
+
+context_mode Client::getPrivmsg() const {return this->_privmsg;}
+std::string Client::getTypeCmd() {return this->_typeCmd;}
+context_mode Client::getMode() {return this->_mode;}
+context_mode Client::getKick() {return this->_kick;}
+std::map<std::string, std::string> Client::getJoin() {return this->_join;}
+std::vector<std::string> Client::getTopic() {return this->_topic;}
+std::map<std::string, std::string> Client::getInvite() { return this->_invite;}
+
 void Client::setJoin(std::map<std::string, std::string> arg) {this->_join = arg;}
-void Client::setTopic(std::map<std::string, std::string> arg) {this->_topic = arg;}
+void Client::setTopic(std::vector<std::string> arg) {this->_topic = arg;}
 void Client::setInvinte(std::map<std::string, std::string> arg) { this->_invite  = arg;}
 void Client::setMode(context_mode arg) {this->_mode = arg;}
 void Client::setKick(context_mode arg) {this->_kick = arg;}
+void Client::setPrivmsg(context_mode arg)  {this->_privmsg = arg;}
 void Client::setTypeCmd(std::string type) {this->_typeCmd = type;}
 
 std::string Client::getTypeCmd() {return this->_typeCmd;}
