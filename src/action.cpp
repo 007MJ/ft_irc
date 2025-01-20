@@ -103,33 +103,40 @@ unsigned int topic(Client *nc, Server *irc)
 }
 
 
-void sendMsg(Client *author, std::string msg, Client *nc, int codeError){
+void channelSend(std::string msg, Client *nc, int codeError){
 
-    if (author != NULL)
-    {
-        if (author->getFd() != nc->getFd())
-        {
-            void *str = new char [msg.size() + 1];
-            strcpy((char *)str, msg.c_str());
-            send(nc->getFd(), str, msg.size(), 0);
-            free(str);
-            (void)codeError;
-        }
-    }
+        void *str = new char [msg.size() + 1];
+        strcpy((char *)str, msg.c_str());
+        send(nc->getFd(), str, msg.size(), 0);
+        free(str);
+        (void)codeError;
+
+}
+
+void sendMsg(std::string msg, Client *nc, int codeError)
+{
+    void *str = new char [msg.size() + 1];
+    strcpy((char *)str, msg.c_str());
+    send(nc->getFd(), str, msg.size(), 0);
+    free(str);
+    (void)codeError;
 }
 
 
-void sendToChannel(Client *nc, Channel room, std::string msg){
+void sendToChannel(Channel room, std::string msg){
     std::map<int, Client*> arrClient = room.getClientChannel();
     std::map<int, Client*>::iterator it = arrClient.begin();
     std::map<int, Client*>::iterator ite = arrClient.end();
-    if (room.IsMember(nc->getFd()))
-    {
-        while (it != ite){
-            sendMsg(nc, msg, it->second, 0);
+    // if (room.IsMember(nc->getFd()))
+    // {
+        std::cout << "Send message to the room :" << std::endl;
+        while (it != ite)
+        {
+            std::cout << "CLient:"<< it->second->getFd() << std::endl;
+            channelSend(msg, it->second, 0);
             it++;
         }
-    }
+    // }
 }
 
 
@@ -150,7 +157,11 @@ void sendToUser(Client *author, std::string nameClient, Server *irc, std::string
     }
     index = getUser(usrName, irc);
     if (index > 0)
-        sendMsg(author, msg, &irc->getClients()[index], 0);
+    {
+        std::cout << " send User message " << std::endl;
+        if (author->getFd() != irc->getClients()[index].getFd())
+            sendMsg(msg, &irc->getClients()[index], 0);
+    }
 }
 
 
@@ -161,13 +172,15 @@ unsigned int privmsg(Client *nc, Server *irc)
     context_mode prmsg = nc->getPrivmsg();
     unsigned index = 0;
     int roomIndex ;
-    sendToUser(nc, prmsg.target, irc, prmsg.modestring);
     while (index < prmsg.arguments.size())
     {
-        std::cout << " in privmsg fun " << std::endl;
+        std::cout << " in privmsg fun arg"<< prmsg.arguments[index] << std::endl;
         roomIndex = getRoomindex(prmsg.arguments[index], irc);
         if (roomIndex > -1)
-            sendToChannel(nc, irc->getChannel()[roomIndex], prmsg.modestring);
+        {
+            std::cout<< "Send mesg channl "<< std::endl;
+            sendToChannel(irc->getChannel()[roomIndex], prmsg.modestring);
+        }
         sendToUser(nc, prmsg.arguments[index], irc, prmsg.modestring);
         index++;
     }
@@ -211,7 +224,8 @@ void RoomCheck(Client *nc, Server *irc){
     {
         indexRoom = getRoomindex(it->first, irc);
         std::cout << " is index room :" << indexRoom << std::endl;
-        if (indexRoom > -1){
+        if (indexRoom > -1)
+        {
             Channel room = irc->getChannel()[indexRoom];
             if (room.GetPassword() == it->second)
             {
@@ -227,6 +241,7 @@ void RoomCheck(Client *nc, Server *irc){
         {
             std::cout << "add the room->name : " << it->first  << " the len " << it->first.size() << std::endl;
             irc->addChannel(it->first, it->second, *nc);
+            // add super as superUser();
         }
         it++;
     }
@@ -263,8 +278,11 @@ void kick(Client *nc, Server *irc)
     if (index > -1)
     {
         Channel chann = irc->getChannel()[index];
-        if(chann.IsSuperUser(nc->getFd()) && chann.IsMember(usrIndex)){
+        if(chann.IsSuperUser(nc->getFd()) && chann.IsMember(usrIndex))
+        {
             chann.RemoveClient(usrIndex);
+            if (chann.getNbClients() == 0)
+                 irc->getChannel().erase(irc->getChannel().begin() + index);
             std::cout << "Client with index " << usrIndex << " removed!\n";
             return;
         }
@@ -272,12 +290,80 @@ void kick(Client *nc, Server *irc)
 
     }
 }
+void modeOption(Channel room, std::string opt, std::string data)
+{
+    if (opt == "+i" || opt == "-i")
+    {
+        std::cout << " mode Option i+ or -i" << std::endl;
+        if (opt[0] == '-')
+            room.SetInviteOnlyModeTo(false);
+        else
+            room.SetInviteOnlyModeTo(true);
+    }
+    if (opt == "+t" || opt == "-t")
+    {
+        std::cout << " mode Option +t or -t" << std::endl;
+        if (opt[0] == '-')
+            room.SetRestrictedTopicModeTo(false);
+        else
+            room.SetRestrictedTopicModeTo(true);
+    }
+    if (opt == "+k" || opt == "-k")
+    {
+        std::cout << " mode Option +k or -k" << std::endl;
+        if (opt[0] == '-')
+            room.SetPassword("");
+        else
+            room.SetPassword(data);
+    }
+    if (opt == "+o" || opt == "-o")
+    {
+        std::cout << " mode Option +o or -o" << std::endl;
+        std::map<int, Client *> arrClients = room.getClientChannel();
+        std::map<int, Client *>::iterator it = arrClients.begin();
+        std::map<int, Client *>::iterator end =  arrClients.end();
+        while (it != end)
+        {
+            if (it->second->getNickname() == data || it->second->getUsername() == data)
+                break;
+            it++;
+        }
+        if (it != end)
+        {
+            if (opt[0] == '-')
+                room.AddClientAsSuperUser(it->second->getFd());
+            else
+                room.RemoveClientAsSuperUser(it->second->getFd());
+        }
+    }
+    if (opt == "+l" || opt == "-l")
+    {
+        std::cout << " mode Option +l or -l" << std::endl;
+        if (opt[0] == '-')
+            room.SetChannelLimit(1);
+        else
+            room.SetChannelLimit(atoi(data.c_str()));
+    }
+}
 void mode(Client *nc, Server *irc)
 {
     std::cout << "Mode fun" << std::endl;
     context_mode var = nc->getMode();
 
-    std::cout<< "target :" << var.target << std::endl;
-    std::cout<< "arg :" << var.modestring << std::endl;
-    (void)irc;
+    int indexRoom = getRoomindex(var.target, irc);
+    if (indexRoom > -1)
+    {
+        Channel room = irc->getChannel()[indexRoom];
+        // if (room.IsSuperUser(nc->getFd()))
+        // {
+            std::cout << "Room :"<< var.target << std::endl;
+            std::cout << "Mode :"<< var.modestring << std::endl;
+            if (var.modestring.size() == 2)
+            {
+                if (var.arguments.size() == 0)
+                    var.arguments[0] = "";
+                modeOption(room, var.modestring, var.arguments[0]);
+            }
+        // }        
+    }
 }

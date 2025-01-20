@@ -72,6 +72,7 @@ void Channel::SetPassword(const std::string &password_)
     _password = password_;
 }
 
+
 const std::string &Channel::getTopic() const
 {
     return _topic;
