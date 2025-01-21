@@ -19,7 +19,7 @@ unsigned int topic(Client *nc, Server *irc);
 unsigned int invite(Client *nc, Server *irc);
 int getUser(std::string usrName, Server *irc);
 void sendMsg(std::string msg, Client *nc, int codeError);
-void sendToChannel(Channel room, std::string msg);
+void sendToChannel(Client *nc, Channel room, std::string msg);
 void sendToUser(Client *author, std::string nameClient, Server *irc, std::string msg);
 unsigned int privmsg(Client *nc, Server *irc);
 int isUserChannel(std::map<int, Client *> clientsChannel, std::string nickname);

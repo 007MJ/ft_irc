@@ -77,7 +77,7 @@ std::string noNewLIne(std::string word){
         i++;
     }
     newWord = word.substr(0, i);
-    std::cout << "le mot sans newLine : "<<newWord << std::endl;
+    // std::cout << "le mot sans newLine : "<<newWord << std::endl;
     return newWord;
 }
 
@@ -86,7 +86,7 @@ int isCommaSpace(unsigned int  start, std::string msg)
     bool isChar = false;
     while (start <  msg.size())
     {
-        std::cout << "index word " << msg[start] << std::endl;
+        // std::cout << "index word " << msg[start] << std::endl;
         if (msg[start] == ' ')
         {
             isChar = true;
@@ -125,7 +125,7 @@ Commands::Commands(std::string message)
     {
         start = index_lastspace(this->input);
         end = isCommaSpace(start , this->input);
-        std::cout << "start index " << start << " end index " << end << std::endl;
+        // std::cout << "start index " << start << " end index " << end << std::endl;
          if (end == 0 || end  == -1) 
             end = (int)this->input.length();       
          word = this->input.substr(start, end);
@@ -134,7 +134,7 @@ Commands::Commands(std::string message)
 
          if (isNewLine(word) == true)
             word = noNewLIne(word);
-         std::cout << "Le mot : " << word << " size : " << word.size() << std::endl;
+        //  std::cout << "Le mot : " << word << " size : " << word.size() << std::endl;
             this->split_cmds.push_back(word);
          this->input.erase(start, end);
     }

@@ -24,7 +24,22 @@ void Channel::AddClient(Client *client_)
 {
     if (client_)
     {
+        std::cout << "the Client->fd is  add  :" << client_->getFd() << std::endl;
         _clients[client_->getFd()] = client_;
+    }
+    std::cout << "size of the client after add " << _clients.size() << std::endl;
+    std::map<int, Client*> arrClient = _clients;
+    std::map<int, Client*>::iterator it = arrClient.begin();
+    std::map<int, Client*>::iterator ite = arrClient.end();
+    // if (room.IsMember(nc->getFd()))
+    {
+
+        std::cout << "the while for the fd " << std::endl;
+        while (it != ite)
+        {
+            std::cout << "is fd -> : ->"<< it->first << std::endl;
+            it++;
+        }
     }
 }
 

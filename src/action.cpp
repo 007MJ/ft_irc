@@ -103,18 +103,21 @@ unsigned int topic(Client *nc, Server *irc)
 }
 
 
-void channelSend(std::string msg, Client *nc, int codeError){
+void channelSend(std::string msg, int fd, int codeError)
+{
 
-        void *str = new char [msg.size() + 1];
-        strcpy((char *)str, msg.c_str());
-        send(nc->getFd(), str, msg.size(), 0);
-        free(str);
-        (void)codeError;
+    std::cout << "fd where we send" << fd << std::endl;
+            void *str = new char [msg.size() + 1];
+            strcpy((char *)str, msg.c_str());
+            send(fd, str, msg.size(), 0);
+            free(str);
+            (void)codeError;
 
 }
 
 void sendMsg(std::string msg, Client *nc, int codeError)
 {
+    std::cout << " -- messag Send --" << std::endl;
     void *str = new char [msg.size() + 1];
     strcpy((char *)str, msg.c_str());
     send(nc->getFd(), str, msg.size(), 0);
@@ -123,20 +126,24 @@ void sendMsg(std::string msg, Client *nc, int codeError)
 }
 
 
-void sendToChannel(Channel room, std::string msg){
+void sendToChannel(Client *nc, Channel room, std::string msg){
     std::map<int, Client*> arrClient = room.getClientChannel();
     std::map<int, Client*>::iterator it = arrClient.begin();
     std::map<int, Client*>::iterator ite = arrClient.end();
     // if (room.IsMember(nc->getFd()))
-    // {
+    {
+        std::cout << "the size of the map ::: -> " << room.getClientChannel().size() << std::endl;
+        std::cout << "the of the channel -> " << room.GetName() << std::endl;
         std::cout << "Send message to the room :" << std::endl;
         while (it != ite)
         {
-            std::cout << "CLient:"<< it->second->getFd() << std::endl;
-            channelSend(msg, it->second, 0);
+            std::cout << "CLient  who send the msg : ->"<< nc->getFd() << std::endl;
+            std::cout << "where we send it CLient : ->"<< it->first << std::endl;
+            if (nc->getFd() != it->first)
+                channelSend(msg, it->first, 0);
             it++;
         }
-    // }
+    }
 }
 
 
@@ -144,24 +151,21 @@ void sendToUser(Client *author, std::string nameClient, Server *irc, std::string
 {
     std::string usrName;
     unsigned int index = 0;
-    unsigned int indexUsr = 0;
-    while (index < nameClient.size())
+    if (nameClient.size() > 1)
     {
-        if (nameClient[index] == ':')
-            index++;
-        else{
-            usrName[indexUsr] = nameClient[index];
-            index++;
-            indexUsr++;
+        if (nameClient[0] != '#')
+        {
+            index = getUser(nameClient, irc);
+            std::cout << " send User message ->index channel  " << index << " <- " << std::endl;
+            if (index >= 0 && index <= irc->getClients().size())
+            {
+                std::cout << " Client message find" << std::endl;
+                // if (author->getFd() != irc->getClients()[index].getFd())
+                    sendMsg(msg, &irc->getClients()[index], 0);
+            }
         }
     }
-    index = getUser(usrName, irc);
-    if (index > 0)
-    {
-        std::cout << " send User message " << std::endl;
-        if (author->getFd() != irc->getClients()[index].getFd())
-            sendMsg(msg, &irc->getClients()[index], 0);
-    }
+    (void)author;
 }
 
 
@@ -174,12 +178,15 @@ unsigned int privmsg(Client *nc, Server *irc)
     int roomIndex ;
     while (index < prmsg.arguments.size())
     {
-        std::cout << " in privmsg fun arg"<< prmsg.arguments[index] << std::endl;
+        std::cout << " in privmsg fun arg : "<< prmsg.arguments[index] << std::endl;
         roomIndex = getRoomindex(prmsg.arguments[index], irc);
+        std::cout << " index roomdindex: "<< roomIndex << std::endl;
         if (roomIndex > -1)
         {
             std::cout<< "Send mesg channl "<< std::endl;
-            sendToChannel(irc->getChannel()[roomIndex], prmsg.modestring);
+            std::cout<< "Number of user ---> "<< irc->getChannel()[roomIndex].getClientChannel().size() << std::endl;
+            Channel room = irc->getChannel()[roomIndex];
+            sendToChannel(nc, room, prmsg.modestring);
         }
         sendToUser(nc, prmsg.arguments[index], irc, prmsg.modestring);
         index++;
@@ -189,11 +196,13 @@ unsigned int privmsg(Client *nc, Server *irc)
 
 
 
-int getRoomindex(std::string nameRoom, Server *irc){
+int getRoomindex(std::string nameRoom, Server *irc)
+{
     unsigned int index = 0;
     while (index < irc->getChannel().size())
     {
-        if (nameRoom == irc->getChannel()[index].GetName()){
+        if (nameRoom == irc->getChannel()[index].GetName())
+        {
             std::cout <<"arg name : " << nameRoom << " Get->name " << irc->getChannel()[index].GetName() << std::endl;
             return index;
         }
@@ -202,9 +211,11 @@ int getRoomindex(std::string nameRoom, Server *irc){
     return (-1);
 }
 
-int getUser(std::string usrName, Server *irc){
+int getUser(std::string usrName, Server *irc)
+{
     unsigned int index = 0;
-    while (index < irc->getClients().size()){
+    while (index < irc->getClients().size())
+    {
         if (usrName == irc->getClients()[index].getNickname() || usrName == irc->getClients()[index].getUsername())
             return index;
         index++;
@@ -213,7 +224,8 @@ int getUser(std::string usrName, Server *irc){
 }
 
 
-void RoomCheck(Client *nc, Server *irc){
+void RoomCheck(Client *nc, Server *irc)
+{
 
     std::map<std::string, std::string> arr;
     int indexRoom;
@@ -223,7 +235,7 @@ void RoomCheck(Client *nc, Server *irc){
     while (it != end)
     {
         indexRoom = getRoomindex(it->first, irc);
-        std::cout << " is index room :" << indexRoom << std::endl;
+        // std::cout << " is index room :" << indexRoom << std::endl;
         if (indexRoom > -1)
         {
             Channel room = irc->getChannel()[indexRoom];
@@ -233,13 +245,13 @@ void RoomCheck(Client *nc, Server *irc){
                 {
                     room.AddClient(nc);
                     displayRoom(nc, room);
-                    std::cout << "Display usr" << std::endl;
+                    // std::cout << "Display usr" << std::endl;
                 }
             }
         }
         else 
         {
-            std::cout << "add the room->name : " << it->first  << " the len " << it->first.size() << std::endl;
+            // std::cout << "add the room->name : " << it->first  << " the len " << it->first.size() << std::endl;
             irc->addChannel(it->first, it->second, *nc);
             // add super as superUser();
         }
@@ -255,6 +267,7 @@ void displayRoom(Client *nc , Channel room){
     std::map<int, Client *>::iterator end = arr.end();
 
     char buffer[BUFFER_SIZE];
+    std::cout << "the size of the client in the rooom " << room.getClientChannel().size() << std::endl;
     while (it != end)
     {
         strcpy(buffer, (it->second->getNickname() + '\n').c_str());
@@ -285,7 +298,6 @@ void kick(Client *nc, Server *irc)
             return;
         }
         std::cout << "Client with index " << usrIndex << " removed!\n";
-
     }
 }
 void modeOption(Channel room, std::string opt, std::string data)
