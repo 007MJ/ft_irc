@@ -37,6 +37,8 @@ public:
     void SetChannelLimit(int limit_);
     std::map<int, Client*> getClientChannel();
     std::set<int> getSuperUsers();
+    void displayChannel(int author);
+    void someJoin(Client *lime);
 
 
         

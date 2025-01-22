@@ -1,5 +1,6 @@
 #include "Channel.hpp"
 #include <sstream> 
+#include "../../includes/utils.hpp"
 
 Channel::Channel(std::string name_, std::string password_, Client& owner_)
 : _name(name_),
@@ -24,23 +25,11 @@ void Channel::AddClient(Client *client_)
 {
     if (client_)
     {
-        std::cout << "the Client->fd is  add  :" << client_->getFd() << std::endl;
-        _clients[client_->getFd()] = client_;
+        // _clients[client_->getFd()] = client_;
+        std::cout << "client add to channel :"  << client_->getFd() << std::endl;
+        _clients.insert(std::make_pair(client_->getFd(), client_));
     }
-    std::cout << "size of the client after add " << _clients.size() << std::endl;
-    std::map<int, Client*> arrClient = _clients;
-    std::map<int, Client*>::iterator it = arrClient.begin();
-    std::map<int, Client*>::iterator ite = arrClient.end();
-    // if (room.IsMember(nc->getFd()))
-    {
-
-        std::cout << "the while for the fd " << std::endl;
-        while (it != ite)
-        {
-            std::cout << "is fd -> : ->"<< it->first << std::endl;
-            it++;
-        }
-    }
+    std::cout << "the size of the channel :"<< _clients.size() << std::endl;
 }
 
 void Channel::RemoveClient(int fd_)
@@ -129,3 +118,31 @@ void Channel::SetChannelLimit(int limit_)
 }
 std::map<int, Client*> Channel::getClientChannel() {return this-> _clients;}
 std::set<int> Channel::getSuperUsers() {return this->_superUsers;}
+
+void Channel::displayChannel(int author)
+{
+    std::map<int, Client *>::iterator it = this->_clients.begin();
+    std::string userList = "Clients in Channel " + this->_name ;
+    // <server> 353 <nickname> = <channel> :<users>\r\n
+    while (it != this->_clients.end())
+    {
+        userList += it->second->getNickname() + " ";
+        it++;
+    }
+    userList += '\r' + '\n';
+    send(author, userList.c_str(), userList.size(), 0);
+}
+
+
+void Channel::someJoin(Client *lime)
+{
+    std::map<int, Client *>::iterator it = this->_clients.begin();
+    std::string userList = "Clients has join " + this->GetName() + lime->getNickname();
+    while (it != this->_clients.end())
+    {
+        userList += '\r' + '\n';
+        if (it->first != lime->getFd())
+            send(it->first, userList.c_str(), userList.size(), 0);
+        it++;
+    }
+}

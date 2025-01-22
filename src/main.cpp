@@ -65,42 +65,14 @@ int main(int argc, char *argv[])
             if (ft_irc.getClientFds()[i].fd != -1 &&
                 (ft_irc.getClientFds()[i].revents & POLLRDNORM))
             {
-
-                if (!ft_irc.IsClientAuth(ft_irc.getClientFds()[i].fd))
+                std::string line;
+                if (clean_recv1(ft_irc.getClientFds()[i].fd, line))
                 {
-                    // std::cout << "------------------------------------\n";
-                    // std::cout << "Client fd: " << ft_irc.getClientFds()[i].fd << std::endl;
-                    // std::cout << "------------------------------------\n";
-                    if (!ft_irc.AuthClient(ft_irc.getClientFds()[i].fd))
-                    {
-                        continue; // Skip to the next client if awaiting authentication
-                    }
+                    ClientHandler(line, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
+                    std::cout << "Received line: " << line << std::endl;
+                    continue;
                 }
-                // Le client doit s'identifier (Nickname)
-                else
-                {
-                    char buffer[BUFFER_SIZE];
-                int n = recv(ft_irc.getClientFds()[i].fd, buffer, sizeof(buffer) - 1, 0);
-                if (n <= 0) {
-                    if (n == 0) {
-                        std::cout << "Client "
-                                  << ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->getNickname()
-                                  << " disconnected\n";
-                    }
-                    else {
-                        std::cout << "Error receiving data from client " << ft_irc.getClientFds()[i].fd << "\n";
-                    }
-                    ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
-                } else {
-                    // Tout commence ici !
-                    buffer[n] = '\0';
-                    std::cout << "Received from client " 
-                              << ft_irc.getClientFds()[i].fd << ": " << buffer << "\n";
-                    ClientHandler(buffer, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
-                    // std::cout << "id :" << i << std::endl;
-                
-                }
-                }
+                ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
             }
         }
     }

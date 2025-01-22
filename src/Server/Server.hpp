@@ -32,7 +32,7 @@ public:
     const struct pollfd* getClientFds() const;
     bool ReceiveDataFromClient(int fd);
     bool IsClientAuth(int fd_);
-    bool AuthClient(int fd_);
+    bool AuthClient(Client *client_, std::string password_);
     std::vector<Channel> getChannel();
     std::vector<Client> getClients();
     void addChannel(std::string name, std::string pwd, Client &nc);

@@ -246,58 +246,21 @@ std::vector<Client> Server::getClients() {return this->_clients;}
 // }
 
 
-bool Server::AuthClient(int fd_)
+bool Server::AuthClient(Client *client_, std::string password_)
 {
 
-    // Receive input
-    char buffer[BUFFER_SIZE];
-    int n = recv(fd_, buffer, sizeof(buffer) - 1, 0);
-    if (n <= 0)
-    {
-        if (n == 0)
-        {
-            std::cout << "Client " << fd_ << " disconnected\n";
-        }
-        else
-        {
-            std::cout << "Error receiving data from client " << fd_ << "\n";
-        }
-        DeleteClient(fd_);
-        return false; // Disconnect the client
-    }
 
-    buffer[n] = '\0'; // Null-terminate input
-    std::string input(buffer);
-    input.erase(input.find_last_not_of("\r\n") + 1);
-
-    if (input == _password)
+    if (password_ == _password)
     {
-        int cliIndex = getClientIndex(fd_);
-        if(cliIndex == -1){
-            std::cout << "Client with fd: " << fd_ << " not found" << std::endl;
-            return false;
-        }
-        _clients[cliIndex].setIsAuth();
-        if (send(fd_, "You have been successfully authenticated!\n", 43, 0) < 1)
-        {
-            std::cout << "Error sending authentication success message to client " << fd_ << "\n";
-            return false;
-        }
-        return true;
+        client_->setIsAuth();
+        std::cout << "---------------Client successfully authenticated----------\n";
+        return clean_send(client_->getFd(), "You have been successfully authenticated!\n");
     }
-    else
-    {
-        
-        if (send(fd_, "Wrong password, authentication failed. Try again\n", 50, 0) < 1)
-        {
-            std::cout << "Error sending authentication failure message to client " << fd_ << "\n";
-            return false;
-        }
-        return false; // Wait for the client to try again
-        
-    }
-    // std::cout << " end of authClient " << std::endl;
+    std::cout << "Wrong password\n";
+    return clean_send(client_->getFd(), "Wrong password, authentication failed. Try again.\n"), false;
 }
+
+
 
 int Server::getClientIndex(int fd_){
     for (size_t i = 0; i < _clients.size(); ++i)
@@ -311,8 +274,7 @@ int Server::getClientIndex(int fd_){
 
 std::vector<Channel> Server::getChannel(){return this->_channel;}
 void Server::addChannel(std::string name, std::string pwd, Client &nc) {
-    std::cout << "server add channel" << std::endl;
-    std::cout << "get->getFd() -> "<< nc.getFd() << std::endl;
     Channel newRoom(name, pwd, nc);
+    std::cout << "Create chanmel " << std::endl;
     this->_channel.push_back(newRoom);
 }
