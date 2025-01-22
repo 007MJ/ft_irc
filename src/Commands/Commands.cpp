@@ -1,16 +1,13 @@
 #include "Commands.hpp"
 
-int removeCommanSpace(std::string word){
-    unsigned int index = 0;
-    std::string newString = "";
-    while (index < word.size())
-    {  
-        if (word[index] == ' ' || word[index] == ',')
-            return (1);
-        index++;
+int removeCommanSpace(const std::string& word) {
+    for (size_t i = 0; i < word.size(); ++i) {
+        if (word[i] == ' ' || word[i] == ',')
+            return 1;
     }
-    return (0);
+    return 0;
 }
+
 
 bool is_command(std::string s1, std::string s2){
     unsigned long index = 0;
@@ -28,7 +25,8 @@ int index_lastspace(std::string txt){
     return (i);
 }
 
-bool too_much_cmds(std::vector<std::string> split_cmd, std::array<std::string , 6> arr){
+bool too_much_cmds(std::vector<std::string> split_cmd, std::vector<std::string> arr)
+{
     int count = 0;
     unsigned long index = 0;
     unsigned long index_arr = 0;
@@ -51,6 +49,7 @@ bool too_much_cmds(std::vector<std::string> split_cmd, std::array<std::string , 
         return (true);
     return false;
 }
+
 Commands::Commands() {}
 
 std::string Commands::get_message(std::string msg){return msg;}
@@ -67,96 +66,114 @@ bool isNewLine(std::string word){
     return (false);
 }
 
-std::string noNewLIne(std::string word){
-    std::string newWord = "";
-    unsigned long i = 0 ;
-    while ( i < word.length() && word[i] != '\n')
-    {
-        // std::cout << "word : " << "index " << i << word[i] << std::endl;
-        newWord[i] += word[i];
+std::string noNewLIne(const std::string& word) {
+    unsigned long i = 0;
+    while (i < word.length() && word[i] != '\n')
         i++;
-    }
-    newWord = word.substr(0, i);
-    std::cout << "le mot sans newLine : "<<newWord << std::endl;
-    return newWord;
+    return word.substr(0, i);
 }
 
-int isCommaSpace(unsigned int  start, std::string msg)
-{
-    bool isChar = false;
-    while (start <  msg.size())
-    {
-        std::cout << "index word " << msg[start] << std::endl;
-        if (msg[start] == ' ')
-        {
-            isChar = true;
-            while (start <  msg.size() && msg[start] == ' ')
+
+int isCommaSpace(unsigned int start, const std::string& msg) {
+    while (start < msg.size()) {
+        if (msg[start] == ',' || msg[start] == ' ') {
+            // Ignore les espaces ou virgules consécutifs
+            while (start < msg.size() && (msg[start] == ',' || msg[start] == ' '))
                 start++;
+            return (int)start;
         }
-        if (msg[start] == ',')
-        {
-            isChar = true;
-            while (start <  msg.size() && msg[start] == ' ')
-                start++;
-            if (start <  msg.size())
-                start++;
-        }
-        if (isChar == true)
-            return (start);
         start++;
     }
-    return (start++);
+    return (int)start;
 }
 
-Commands::Commands(std::string message)
+int whereIsDifferent(std::string s1, std::string s2)
 {
-    std::array<std::string , 6> arr = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG"};
-    for (unsigned long i = 0; i < arr.size(); i ++)
+    unsigned index = 0;
+    std::cout << "size s1 :" << s1.size() << "size s2 " << s2.size() << std::endl;
+    while (index < s1.size() && index < s2.size())
     {
-        name_cmds.push_back(arr[i]);
-        // std::cout<< "Commands constructeur " << name_cmds[i] << std::endl;
-    }
-    this->input = message;
-    std::string delims;
-    std::string word;
-    int end = 0;
-    int start = 0;
-    while (this->input.empty() == false)
-    {
-        start = index_lastspace(this->input);
-        end = isCommaSpace(start , this->input);
-        std::cout << "start index " << start << " end index " << end << std::endl;
-         if (end == 0 || end  == -1) 
-            end = (int)this->input.length();       
-         word = this->input.substr(start, end);
-         if (removeCommanSpace(word))
-            word = this->input.substr(0, word.size() - 1);
-
-         if (isNewLine(word) == true)
-            word = noNewLIne(word);
-         std::cout << "Le mot : " << word << " size : " << word.size() << std::endl;
-            this->split_cmds.push_back(word);
-         this->input.erase(start, end);
-    }
-    unsigned long i = 0;
-    bool find_cmd = false;
-    while(i < this->split_cmds.size() && find_cmd == false)
-    {
-        unsigned long index = 0;
-        while (index < name_cmds.size() && find_cmd == false)
+        if (s1[index] == s2[index])
         {
-            if (is_command(this->split_cmds[i] ,name_cmds[index]))
-            {
-                this->type_cmds = name_cmds[index];
-                find_cmd = true;
-            }
-            index++;
+            std::cout << "same" <<  std::endl;
+            std::cout << "s1 :" << s1[index] << std::endl;
+            std::cout << "s2 :" << s2[index] << std::endl;
+        }else
+        {
+            std::cout << "dif -> "<<  s1[index]<< std::endl;
+            std::cout << "dif -> "<<  s2[index]<< std::endl;
         }
-        i++;
+        index++;
     }
-    if (too_much_cmds(this->split_cmds, arr))
-        this->type_cmds = "";
+    return 0;
 }
+
+Commands::Commands(std::string message) {
+    // Liste des commandes reconnues
+    std::string arr[] = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG", "PASS", "NICK", "USER"};
+    std::cout << "size of arrrrrrrrrrrrr" << sizeof(arr) << std::endl;
+    for (unsigned int  i = 0; i < 9 ; i++) {
+        name_cmds.push_back(arr[i]);
+    }
+    std::cout << "sizeof "<< name_cmds.size() << std::endl;
+    this->input = message;
+    std::string word = "";
+
+    // Parsing du message en mots séparés par espaces ou virgules
+    for (size_t i = 0; i < this->input.size(); ++i) 
+    {
+        char c = this->input[i];
+
+        if (c != ' ' && c != ',' && c != '\n') 
+        {
+            word += c; // Ajoute le caractère au mot en cours
+        } 
+        else 
+        {
+            if (!word.empty()) 
+            {
+                this->split_cmds.push_back(word); // Ajoute le mot à la liste
+                word.clear(); // Réinitialise le mot
+            }
+        }
+    }
+
+    // Ajoute le dernier mot si la chaîne ne se termine pas par un séparateur
+    if (!word.empty()) {
+        this->split_cmds.push_back(word);
+    }
+
+    // Recherche de la commande principale
+    for (size_t i = 0; i < this->split_cmds.size(); ++i) 
+    {
+        std::cout << "tour " << i << std::endl;
+        std::cout <<"main loop " << this->split_cmds[i] << std::endl;
+        std::cout <<"size of arr " << name_cmds.size() << std::endl;
+        for (size_t j = 0; j < name_cmds.size(); ++j) 
+        {
+            if (this->split_cmds[i] == name_cmds[j]) 
+            {
+                std::cout << "same fun" << this->split_cmds[i] << std::endl;
+                this->type_cmds = name_cmds[j];
+                break;
+            }
+        }
+        if (!this->type_cmds.empty()) 
+            break;
+    }
+
+    for (unsigned int i = 0; i < this->split_cmds.size(); i++)
+    {
+        // std::cout<< "in index :" << this->split_cmds[i] << std::endl;
+    }
+    // Vérifie s'il y a trop de commandes reconnues
+    if (too_much_cmds(this->split_cmds, name_cmds)) {
+        this->type_cmds = "";
+    }
+    std::cout << "type of cmd :" << this->type_cmds << std::endl;
+}
+
+
 Commands::~Commands(){}
 
 std::vector<std::string>Commands::values(){
@@ -169,7 +186,8 @@ std::vector<std::string>Commands::values(){
         is_enter = false;
         if (this->split_cmds[index][0] != '#' && this->split_cmds[index][0] != '&' && this->split_cmds[index][0] != ':')
         {
-            while (in < this->name_cmds.size() && is_enter == false){
+            while (in < this->name_cmds.size() && is_enter == false)
+            {
                 if (split_cmds[index] == name_cmds[in])
                     is_enter = true;
                 in++;
@@ -182,7 +200,8 @@ std::vector<std::string>Commands::values(){
     return (tmp);
 }
 
-std::map<std::string, std::string>Commands::keys_and_value() {
+std::map<std::string, std::string>Commands::keys_and_value() 
+{
     unsigned long index = 0;
     std::vector<std::string> tmp = this->values();
     while (index < this->split_cmds.size()){
@@ -277,7 +296,8 @@ context_mode Commands::_privmsg()
    bool isTarget = false;
    unsigned long index = 0;
    context_mode var;
-    while (index < this->split_cmds.size()){
+    while (index < this->split_cmds.size())
+    {
          if (this->split_cmds[index][0] != ':' && isTarget == false && (this->split_cmds[index] != "PRIVMSG"))
          {
             std::cout << "this tagert : " << this->split_cmds[index] << std::endl;
@@ -297,6 +317,3 @@ context_mode Commands::_privmsg()
     std::cout<< " target " << var.arguments[0] << std::endl;
     return var;
 }
-
-
-

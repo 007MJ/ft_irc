@@ -9,6 +9,7 @@
 
 void errorMsg(const std::string &msg);
 bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_);
+bool clean_recv1(int fd_,  std::string &line_);
 bool clean_recv(int fd_, char *buffer);
 bool clean_send(int fd_, const char *buff);
 bool promptForUsername(int fd_, char *buff);

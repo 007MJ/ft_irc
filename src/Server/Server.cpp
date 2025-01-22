@@ -246,31 +246,20 @@ std::vector<Client> Server::getClients() {return this->_clients;}
 // }
 
 
-bool Server::AuthClient(int fd_)
+bool Server::AuthClient(Client *client_, std::string password_)
 {
 
-    // Receive input
-    char buffer[BUFFER_SIZE];
-    if(!clean_recv(fd_, buffer)){
-        DeleteClient(fd_);
-        return false;
-    }
 
-    std::string input(buffer);
-    input.erase(input.find_last_not_of("\r\n") + 1);
-
-    if (input == _password)
+    if (password_ == _password)
     {
-        int cliIndex = getClientIndex(fd_);
-        if(cliIndex == -1){
-            std::cout << "Client with fd: " << fd_ << " not found" << std::endl;
-            return false;
-        }
-        _clients[cliIndex].setIsAuth();
-        return clean_send(fd_, "You have been successfully authenticated!\n");
+        client_->setIsAuth();
+        std::cout << "---------------Client successfully authenticated----------\n";
+        return clean_send(client_->getFd(), "You have been successfully authenticated!\n");
     }
-    return clean_send(fd_, "Wrong password, authentication failed. Try again.\n"), false;
+    std::cout << "Wrong password\n";
+    return clean_send(client_->getFd(), "Wrong password, authentication failed. Try again.\n"), false;
 }
+
 
 bool Server::SetClientInfos(int fd_)
 {
