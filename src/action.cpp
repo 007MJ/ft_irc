@@ -107,7 +107,10 @@ unsigned int topic(Client* nc, Server* irc) {
     if (setTop == 0) {
         sendMsg("Topic: " + room->getTopic(), nc, 0);
         std::cout << "Viewing topic: " << room->getTopic() << std::endl;
-    } else if (room->IsSuperUser(nc->getFd())) {
+    } else if (room->TopicModeIsRestricted() && room->IsSuperUser(nc->getFd())) {
+        room->SetTopic(setTop == 2 ? "" : arr[1]);
+        std::cout << "Topic updated to: " << room->getTopic() << std::endl;
+    } else if (!room->TopicModeIsRestricted()) {
         room->SetTopic(setTop == 2 ? "" : arr[1]);
         std::cout << "Topic updated to: " << room->getTopic() << std::endl;
     } else {
