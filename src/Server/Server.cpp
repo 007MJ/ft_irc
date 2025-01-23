@@ -363,8 +363,6 @@ bool Server::SetClientInfos(Commands *cmd_, Client *client_, Server *irc_)
             clean_send(client_->getFd(), response.c_str());
             return false;
         }
-
-        // return irc_->SetClientNickName(client_, cmd_->get_splitcmds()[1]);
     }
     if(ClientIsIdentified(client_))
         client_->setIsIdentified();

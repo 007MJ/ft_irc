@@ -233,41 +233,6 @@ void RoomCheck(Client *nc, Server *irc){
     }
 
 }
-// void RoomCheck(Client *nc, Server *irc){
-
-//     std::map<std::string, std::string> arr;
-//     int indexRoom;
-//     arr = nc->getJoin();
-//     std::map<std::string, std::string>::iterator it = arr.begin();
-//     std::map<std::string, std::string>::iterator end = arr.end();
-//     while (it != end)
-//     {
-//         indexRoom = getRoomindex(it->first, irc);
-//         // std::cout << " is index room :" << indexRoom << std::endl;
-//         if (indexRoom > -1)
-//         {
-//             Channel room = irc->getChannel()[indexRoom];
-//             if (irc->getChannel()[indexRoom].GetPassword() == it->second)
-//             {
-//                 if (room.IsMember(nc->getFd()) == false && room.InviteOnlyModeIsActivated() == false)
-//                 {
-//                     // room.AddClient(nc);
-//                     irc->getChannel()[indexRoom].AddClient(nc);
-//                     displayRoom(nc, room);
-//                     // std::cout << "Display usr" << std::endl;
-//                 }
-//             }
-//         }
-//         else 
-//         {
-//             // std::cout << "add the room->name : " << it->first  << " the len " << it->first.size() << std::endl;
-//             irc->addChannel(it->first, it->second, *nc);
-//             // add super as superUser();
-//         }
-//         it++;
-//     }
-//     // std::cout << "end function " << std::endl;
-// }
 
 
 void displayRoom(Client *nc , Channel room){
