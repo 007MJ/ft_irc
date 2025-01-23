@@ -369,6 +369,8 @@ bool Server::SetClientInfos(Commands *cmd_, Client *client_, Server *irc_)
     return true;
 }
 
+
+
 int Server::getClientIndex(int fd_){
     for (size_t i = 0; i < _clients.size(); ++i)
     {

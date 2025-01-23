@@ -66,7 +66,6 @@ bool ClientHandler(std::string msg, Client *nc, Server *irc)
             std::cout << "JOIN" << std::endl;
             RoomCheck(nc, irc);
         }
-        // std::cout << "bug 3" << std::endl;
         else if (cmd.get_type_cmd() == "MODE")
         {
             nc->setMode(cmd._mode());
