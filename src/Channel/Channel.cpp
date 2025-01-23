@@ -9,7 +9,7 @@ _password(password_)
     AddClient(&owner_);
     _superUsers.insert(owner_.getFd()); // Adds the client to the list of super users
 
-    _inviteOnly = false;
+    _inviteOnly = true;
     _topic = "";
     _isRestrictedTopic = false;
     _limit = 8;
@@ -33,12 +33,6 @@ void Channel::AddClient(Client *client_)
         // std::cout << "###############After adding " << client_->getNickname() << std::endl;
         _clients[client_->getFd()] = client_;
         ListClients();
-        // std::cout << "*****************************List of users**************************** ";
-        // std::cout << _clients.size() << " users" << std::endl;
-        // for(std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-        // {
-        //     std::cout << "- " << it->second->getNickname() << std::endl;
-        // }
     }
     std::cout << "the size of the channel :"<< _clients.size() << std::endl;
 }

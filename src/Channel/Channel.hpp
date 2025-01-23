@@ -54,7 +54,6 @@ private:
     bool _inviteOnly;
     bool _isRestrictedTopic;
     int _limit;
-    
 };
 
 

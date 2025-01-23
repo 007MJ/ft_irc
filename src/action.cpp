@@ -7,6 +7,7 @@
 #include "Client/Client.hpp"
 #include "Server/Server.hpp"
 #include "Channel/Channel.hpp"
+#include "Replis.hpp"
 
 int getClient(const std::string& nameClient,  Server* irc) {
     const std::vector<Client> arrClient = irc->getClients();
@@ -32,7 +33,7 @@ unsigned int invite(Client* nc, Server* irc) {
     std::cout << "invite command:" << std::endl;
     const std::map<std::string, std::string>& arr = nc->getInvite();
     std::map<std::string, std::string>::const_iterator it = arr.begin();
-
+    Replis msgReplis;
     Channel* room = nullptr;
     while (it != arr.end()) 
     {
@@ -61,9 +62,13 @@ unsigned int invite(Client* nc, Server* irc) {
             } else 
             {
                 std::cout << "Permission denied. User is not a superuser." << std::endl;
+                std::string replisInvite = msgReplis.RPL_NOPRIVILEGES(nc->getNickname());
+                send(nc->getFd(),replisInvite.c_str(), replisInvite.size(), 0);
             }
         } else {
             std::cout << "Channel is not invite-only." << std::endl;
+            std::string replisInvite = msgReplis.RPL_INVITEONLY(nc->getNickname(), room->GetName());
+            send(nc->getFd(), replisInvite.c_str(), replisInvite.size(), 0);
         }
         ++it;
     }
@@ -94,18 +99,14 @@ unsigned int topic(Client* nc, Server* irc) {
         std::cout << "Error: No channel specified for TOPIC." << std::endl;
         return 400; // Bad Request
     }
-
-    // int indexRoom = getRoomindex(arr[0], irc);
-    // if (indexRoom == -1) {
-        // std::cout << "Channel not found: " << arr[0] << std::endl;
-        // return 404; // Not Found
-    // }
+    Replis msgReplis;
 
     Channel* room = irc->getChannelByName(arr[0]);
     int setTop = pasrinTopic(arr[1]);
-    // 
+    
     if (setTop == 0) {
-        sendMsg("Topic: " + room->getTopic(), nc, 0);
+        std::string replisTopic = msgReplis.RPL_TOPIC(nc->getNickname(), room->GetName(), room->getTopic());
+        send(nc->getFd(), replisTopic.c_str(), replisTopic.size(), 0);
         std::cout << "Viewing topic: " << room->getTopic() << std::endl;
     } else if (room->TopicModeIsRestricted() && room->IsSuperUser(nc->getFd())) {
         room->SetTopic(setTop == 2 ? "" : arr[1]);
@@ -116,20 +117,21 @@ unsigned int topic(Client* nc, Server* irc) {
     } else {
         std::cout << "Permission denied. User is not a superuser." << std::endl;
     }
-    return 200; // Success
+    return 200;
 }
 
-void sendMsg(const std::string& msg, Client* nc, int codeError) {
+void sendMsg(std::string& msg, Client* nc, int codeError) {
     send(nc->getFd(), msg.c_str(), msg.size(), 0);
-    (void)codeError; // Suppress unused variable warning
+    (void)codeError;
 }
 
-void sendToChannel(Channel& room, const std::string& msg) {
+void sendToChannel(Channel& room, std::string msg, int author) {
     const std::map<int, Client*>& clients = room.getClientChannel();
     std::map<int, Client*>::const_iterator it = clients.begin();
 
     while (it != clients.end()) {
-        sendMsg(msg, it->second, 0);
+        if (it->first != author)
+            sendMsg(msg, it->second, 0);
         ++it;
     }
 }
@@ -171,42 +173,55 @@ void privmsg(Client* nc, Server* irc) {
     context_mode prmsg = nc->getPrivmsg();
     unsigned int index = 0;
 
-    while (index < prmsg.arguments.size()) {
-            std::cout << "Sending message to channel" << std::endl;
-            Channel *room = irc->getChannelByName(prmsg.arguments[index]);
-            if (room) 
-                sendToChannel(*irc->getChannelByName(prmsg.arguments[index]), prmsg.modestring);
-            else
-                sendToUser(nc, prmsg.arguments[index], irc, prmsg.modestring);
+    while (index < prmsg.arguments.size()) 
+    {
+        std::cout << "Sending message to channel" << std::endl;
+        Channel *room = irc->getChannelByName(prmsg.arguments[index]);
+        if (room) 
+            sendToChannel(*irc->getChannelByName(prmsg.arguments[index]), prmsg.modestring, nc->getFd());
+        else
+            sendToUser(nc, prmsg.arguments[index], irc, prmsg.modestring);
         ++index;
     }
+
 }
 
-void RoomCheck(Client *nc, Server *irc){
-
+void RoomCheck(Client *nc, Server *irc) {
+    // Récupère les canaux que le client veut rejoindre
     std::map<std::string, std::string> arr = nc->getJoin();
-    std::map<std::string, std::string>::iterator it = arr.begin();
-    
-    Channel* room = nullptr;
-    while (it != arr.end())
-    {
-        room = irc->getChannelByName(it->first);
-        if(room != nullptr)
-        {
-            if (room->GetPassword() == it->second && room->IsMember(nc->getFd()) == false)
-            {
-                std::cout <<"is invite true: " << (room->InviteOnlyModeIsActivated()) << std::endl;
-                std::cout <<"-channel size: " << (room->getClientChannel().size()) << std::endl;
-                std::cout <<"-limite channel " << (size_t)room->getChannelLimit() << std::endl;
-                if (room->InviteOnlyModeIsActivated() && (room->getClientChannel().size() < (size_t)room->getChannelLimit()))
-                    room->AddClient(nc);
-            }
-        }
-        else
-            irc->addChannel(it->first, it->second, *nc);
-        it++;
+    if (arr.empty()) {
+        return;
     }
 
+    Replis msgRplis;
+
+    // Itération explicite sur la map avec std::map::iterator
+    std::map<std::string, std::string>::iterator it = arr.begin();
+    for (; it != arr.end(); ++it) {
+        Channel *room = irc->getChannelByName(it->first); // Pointeur brut utilisé à la place de shared_ptr
+        if (!room) {
+            // Crée un nouveau channel si inexistant
+            irc->addChannel(it->first, it->second, *nc);
+            continue;
+        }
+
+        const std::map<int, Client *> &clients = room->getClientChannel();
+        if (room->GetPassword() == it->second && !room->IsMember(nc->getFd())) {
+            if (room->InviteOnlyModeIsActivated() && clients.size() < static_cast<size_t>(room->getChannelLimit())) {
+                room->AddClient(nc);
+
+                std::map<int, Client *>::const_iterator clientIt = clients.begin();
+                for (; clientIt != clients.end(); ++clientIt) {
+                    std::string userList = clientIt->second->getNickname();
+                    std::string endOfNames = msgRplis.RPL_ENDOFNAMES(userList, room->GetName());
+                    std::cout << " userList "<< endOfNames << std::endl;
+                    send(nc->getFd(), endOfNames.c_str(), endOfNames.size(), 0);
+                }
+                // std::cout << "userList of channel "<<  msgRplis.RPL_ENDOFNAMES(userList, room->GetName())<< std::endl;
+                sendToChannel(*room, msgRplis.NOTIFCHANNEL(nc->getNickname(), nc->getUsername(), room->GetName()), nc->getFd());
+            }
+        }
+    }
 }
 
 void modeOption(Channel& room, const std::string& opt, const std::string& data) {
@@ -241,7 +256,7 @@ void mode(Client* nc, Server* irc) {
     std::cout << "Mode command:" << std::endl;
     context_mode var = nc->getMode();
     // int indexRoom = getRoomindex(var.target, irc);
-
+    Replis replisMsg;
     // if (indexRoom == -1) {
         // std::cout << "Error: Channel not found." << std::endl;
         // return;
@@ -252,8 +267,10 @@ void mode(Client* nc, Server* irc) {
         std::string data = var.arguments.empty() ? "" : var.arguments[0];
         if (room && room->IsSuperUser(nc->getFd()))
                 modeOption(*room, var.modestring, data);
-        else
-            std::cout << "Error: not superUser or room == NULL" << std::endl;
+        else{
+            std::string replispriv =  replisMsg.RPL_NOPRIVILEGES(nc->getNickname());
+            send(nc->getFd(), replispriv.c_str(), replispriv.size(), 0);
+        }
 
     } else {
         std::cout << "Error: Invalid mode string." << std::endl;

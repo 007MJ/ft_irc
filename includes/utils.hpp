@@ -6,7 +6,6 @@
 #include "../src/Client/Client.hpp"
 #include "../src/Server/Server.hpp"
 
-
 void errorMsg(const std::string &msg);
 bool ValidateAndStoreArgs(char *argv[], int* port_, std::string& pass_);
 bool clean_recv1(int fd_,  std::string &line_);
@@ -25,9 +24,9 @@ unsigned int topic(Client *nc, Server *irc);
 unsigned int invite(Client *nc, Server *irc);
 int getUser(std::string usrName, Server *irc);
 // void sendMsg(std::string msg, Client *nc, int codeError);
-void sendMsg(const std::string& msg, Client* nc, int codeError);
+void sendMsg(std::string& msg, Client* nc, int codeError);
 // void sendToChannel(Channel room, std::string msg);
-void sendToChannel(Channel& room, const std::string& msg);
+void sendToChannel(Channel& room, std::string msg, int author);
 void sendToUser(Client* author, std::string& nameClient, Server* irc, std::string& msg);
 void privmsg(Client *nc, Server *irc);
 // int isUserChannel(std::map<int, Client *> clientsChannel, std::string nickname);

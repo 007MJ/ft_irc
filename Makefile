@@ -1,7 +1,7 @@
 NAME	= ircserv
 TEST_NAME = irctest
 CC 		= c++
-CPPFLAGS	= -Wall -Werror -Wextra #-std=c++98 //TODO activate the flag
+CPPFLAGS	= -Wall -Werror -Wextra -std=c++98 
 DFLAGS	= -MMD -MF $(@:.o=.d)
 RM 		= rm -f
 AUTHOR	= loadjou mnshimiy anshimiy
@@ -30,14 +30,14 @@ SRCS = $(addsuffix .cpp, $(addprefix src/Server/, $(SERVER))) \
 	   $(addsuffix .cpp, $(addprefix src/Channel/, $(CHANNEL))) \
 	   $(addsuffix .cpp, $(addprefix src/Client/, $(CLIENT))) \
 	   $(addsuffix .cpp, $(addprefix src/Commands/, $(COMMAND))) \
-	   src/main.cpp src/utils.cpp src/utilsplus.cpp src/action.cpp
+	   src/main.cpp src/utils.cpp  src/action.cpp
 
 ################# TEST ##################
 TEST_SRCS = $(addsuffix .cpp, $(addprefix src/Server/, $(SERVER))) \
 			$(addsuffix .cpp, $(addprefix src/Channel/, $(CHANNEL))) \
 			$(addsuffix .cpp, $(addprefix src/Client/, $(CLIENT))) \
 			$(addsuffix .cpp, $(addprefix src/Commands/, $(COMMAND))) \
-			test/main.cpp src/utils.cpp
+			test/main.cpp 
 
 OBJS = $(SRCS:.cpp=.o)
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
