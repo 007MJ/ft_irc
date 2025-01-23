@@ -23,7 +23,7 @@ void RoomCheck(Client *nc, Server *irc);
 int getRoomindex(std::string nameRoom, Server *irc);
 unsigned int topic(Client *nc, Server *irc);
 unsigned int invite(Client *nc, Server *irc);
-bool getUser(std::string usrName, Server *irc);
+int getUser(std::string usrName, Server *irc);
 // void sendMsg(std::string msg, Client *nc, int codeError);
 void sendMsg(const std::string& msg, Client* nc, int codeError);
 // void sendToChannel(Channel room, std::string msg);

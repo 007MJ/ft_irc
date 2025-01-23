@@ -43,7 +43,7 @@ public:
     std::vector<Client> getClients();
     void addChannel(std::string name, std::string pwd, Client &nc);
     int getClientIndex(int fd_);
-    Channel* getChannelByName(const std::string& name_);
+    Channel* getChannelByName(const std::string &name_);
     // void remove(std::string room);
 
     const std::string& getName() const { return _name; }
