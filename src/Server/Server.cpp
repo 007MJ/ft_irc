@@ -205,14 +205,6 @@ bool Server::AcceptClient()
             DeleteClient(client_fd);
             return false;
         }
-        else
-        {
-            if (send(client_fd, "Please enter the password to access the server\n", 48, 0) <= 0)
-            {
-                std::cerr << "Failed to send prompt to client " << client_fd << "\n";
-                DeleteClient(client_fd);
-            }
-        }
     }
     return true;
 }

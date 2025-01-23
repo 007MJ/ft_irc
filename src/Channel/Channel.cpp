@@ -187,3 +187,12 @@ void Channel::displayChannelUsers(int author) {
     response = ":FT_IRC 366 " + nickname + " " + _name + " :End of /NAMES list.\r\n";
     clean_send(author, response.c_str());
 }
+
+/*
+
+PASS abc
+NICK izem
+USER amdan 0 * amdan
+
+
+*/

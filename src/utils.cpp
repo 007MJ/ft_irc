@@ -44,7 +44,9 @@ bool HandleConnection(std::string msg_, Client *client_, Server *irc_)
         return std::cerr << "Error: Client not found" << std::endl, false;
 
     client_->setTypeCmd(cmd.get_type_cmd());
-    
+    if(cmd.get_type_cmd() == "QUIT"){
+            return irc_->DeleteClient(client_->getFd());
+    }
     if (cmd.get_type_cmd() == "PASS" || cmd.get_type_cmd() == "NICK" || cmd.get_type_cmd() == "USER")
         return irc_->SetClientInfos(&cmd, client_, irc_);
 
@@ -65,7 +67,13 @@ bool ClientHandler(std::string msg, Client *nc, Server *irc)
     {
         // std::cout << "ClientHandler function() :" << std::endl;
         nc->setTypeCmd(cmd.get_type_cmd());
-
+        
+        if(cmd.get_type_cmd() == "PONG"){
+            return true;
+        }
+        if(cmd.get_type_cmd() == "QUIT"){
+            return irc->DeleteClient(nc->getFd());
+        }
         // std::cout << "Entered command: PASS" << std::endl;
         if (cmd.get_type_cmd() == "NICK")
         {

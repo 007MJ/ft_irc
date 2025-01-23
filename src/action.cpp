@@ -232,21 +232,27 @@ void RoomCheck(Client *nc, Server *irc)
         room = irc->getChannelByName(it->first);
         if (room != nullptr)
         {
-            if (room->GetPassword() == it->second && room->IsMember(nc->getFd()) == false)
+            if (!room->IsMember(nc->getFd()))
             {
                 std::cout << "is invite true: " << (room->InviteOnlyModeIsActivated()) << std::endl;
                 std::cout << "-channel size: " << (room->getClientChannel().size()) << std::endl;
                 std::cout << "-limite channel " << (size_t)room->getChannelLimit() << std::endl;
+                if(room->GetPassword() != it->second)
+                {
+                    std::string response = ":FT_IRC 475 " + nc->getNickname() + " " + room->GetName() + " :Cannot join channel (+k)\r\n";
+                    clean_send(nc->getFd(), response.c_str());
+                    break;
+                }
                 if (room->InviteOnlyModeIsActivated())
                 {
                     std::cout << "InviteOnlyModeIsActivated for " + room->GetName() << std::endl;
-                    std::string response = ":FT_IRC NOTICE * :Error: You need an invitation to join " + room->GetName() + ".\r\n";
+                    std::string response = ":FT_IRC 473 " + nc->getNickname() + " " + room->GetName() + " :Cannot join channel (+i)\r\n";
                     clean_send(nc->getFd(), response.c_str());
                     break;
                 }
                 if (room->getClientChannel().size() >= (size_t)room->getChannelLimit())
                 {
-                    std::string response = ":FT_IRC NOTICE * :Error: " + room->GetName() + "'s limit is reached.\r\n";
+                    std::string response = ":FT_IRC 471 " + nc->getNickname() + " " + room->GetName() + " :Cannot join channel (+l)\r\n";
                     clean_send(nc->getFd(), response.c_str());
                     break;
                 }

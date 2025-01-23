@@ -110,9 +110,9 @@ int whereIsDifferent(std::string s1, std::string s2)
 
 Commands::Commands(std::string message) {
     // Liste des commandes reconnues
-    std::string arr[] = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG", "PASS", "NICK", "USER"};
+    std::string arr[] = {"PONG", "QUIT", "JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG", "PASS", "NICK", "USER"};
     // std::cout << "size of arrrrrrrrrrrrr" << sizeof(arr) << std::endl;
-    for (unsigned int  i = 0; i < 9 ; i++) {
+    for (unsigned int  i = 0; i <= 10 ; i++) {
         name_cmds.push_back(arr[i]);
     }
     // std::cout << "sizeof "<< name_cmds.size() << std::endl;
