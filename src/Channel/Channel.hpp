@@ -40,6 +40,8 @@ public:
     void displayChannel(int author);
     void someJoin(Client *lime);
 
+    void SendToChannel(Client *author_, std::string& msg_);
+    void displayChannelUsers(int author);
     void ListClients();
 
 

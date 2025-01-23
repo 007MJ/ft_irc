@@ -275,7 +275,7 @@ bool Server::AuthClient(Client *client_, std::string password_)
         return clean_send(client_->getFd(), response.c_str()), true;
     }
     std::cout << "Wrong password\n";
-    response = ":server.name NOTICE * :Wrong password. Try again.\r\n";
+    response = ":FT_IRC NOTICE * :Error :Wrong password. Try again.\r\n";
     return clean_send(client_->getFd(), response.c_str()), false;
 }
 

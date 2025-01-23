@@ -20,7 +20,6 @@ Channel::~Channel()
 {
     //TODO clear the map and the set
 }
-
 void Channel::AddClient(Client *client_)
 {
     if (client_)
@@ -32,6 +31,10 @@ void Channel::AddClient(Client *client_)
         // _clients.insert(std::pair<int, Client*>(client_->getFd(), client_));
         // std::cout << "###############After adding " << client_->getNickname() << std::endl;
         _clients[client_->getFd()] = client_;
+                
+        std::string msg = ":" + client_->getNickname() + " PRIVMSG " + GetName() + " :" + client_->getNickname() + " has joined the channel.\r\n";
+        SendToChannel(client_, msg);
+        displayChannelUsers(client_->getFd());
         ListClients();
         // std::cout << "*****************************List of users**************************** ";
         // std::cout << _clients.size() << " users" << std::endl;
@@ -150,4 +153,37 @@ void Channel::ListClients(){
     for(; it != _clients.end(); ++it){
         std::cout << "- " + it->second->getNickname() + " fd: " << it->first << " memory address: " << it->second << std::endl;
     }
+}
+
+void Channel::SendToChannel(Client *author_, std::string& msg_){
+    std::map<int, Client*>::iterator it = _clients.begin();
+    for(; it != _clients.end(); ++it){
+        if(it->first != author_->getFd()){
+            // SendToUser(author_, it->second, msg_);
+            clean_send(it->first, msg_.c_str());
+        }
+    }
+}
+
+void Channel::displayChannelUsers(int author) {
+    Client *client = _clients[author];
+    if (!client) return; // Ensure the author is a valid client
+
+    std::string nickname = client->getNickname();
+
+    // RPL_TOPIC (332): Show the channel topic
+    std::string response = ":FT_IRC 332 " + nickname + " " + _name + " :" + _topic + "\r\n";
+    clean_send(author, response.c_str());
+
+    // RPL_NAMREPLY (353): List users in the channel
+    response = ":FT_IRC 353 " + nickname + " = " + _name + " :";
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        response += it->second->getNickname() + " ";
+    }
+    response += "\r\n";
+    clean_send(author, response.c_str());
+
+    // RPL_ENDOFNAMES (366): End of the NAMES list
+    response = ":FT_IRC 366 " + nickname + " " + _name + " :End of /NAMES list.\r\n";
+    clean_send(author, response.c_str());
 }

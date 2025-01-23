@@ -16,8 +16,11 @@ bool promptForUsername(int fd_, char *buff);
 std::string getFullUsername(std::vector<std::string> splittedName_);
 
 
+bool SendToUser(Client* sender_, Client* receiver_, std::string& msg_);
+
 // function pour faire les commandes
 bool ClientHandler(std::string msg, Client *nc, Server *irc);
+bool HandleConnection(std::string msg_, Client *client_, Server *irc_);
 // void ActionClient(Client *nc, Server *irc);
 void RoomCheck(Client *nc, Server *irc);
 int getRoomindex(std::string nameRoom, Server *irc);

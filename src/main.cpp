@@ -66,38 +66,29 @@ int main(int argc, char *argv[])
                 (ft_irc.getClientFds()[i].revents & POLLRDNORM))
             {
 
-                // if (!ft_irc.IsClientAuth(ft_irc.getClientFds()[i].fd))
-                // {
-                //     // std::cout << "------------------------------------\n";
-                //     // std::cout << "Client fd: " << ft_irc.getClientFds()[i].fd << std::endl;
-                //     // std::cout << "------------------------------------\n";
-                //     if (!ft_irc.AuthClient(ft_irc.getClientFds()[i].fd) || !ft_irc.SetClientInfos(ft_irc.getClientFds()[i].fd))
-                //     {
-                //         continue; // Skip to the next client if awaiting authentication
-                //     }
-                //     else
-                //         std::cout << "--------------" << ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->getUsername() << " ------------\n";
-                // }
-                // Le client doit s'identifier (Nickname)
-                // else
-                {
-                    // char buffer[BUFFER_SIZE];
+                // char buffer[BUFFER_SIZE];
 
-                    std::string line;
-                    if(clean_recv1(ft_irc.getClientFds()[i].fd, line)){
-                        ClientHandler(line, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
-                        ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->setIsIdentified();
-                        std::cout << "Received line: " << line << std::endl;
-                        continue;
-                    }
-   
+                std::string line;
+                if (!clean_recv1(ft_irc.getClientFds()[i].fd, line)){
                     ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
-                    
-                    // std::cout << "id :" << i << std::endl;
-                    // ActionClient(ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
-
-                
+                    continue;
                 }
+                if (!ft_irc.ClientIsIdentified(ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd))){
+
+                    HandleConnection(line, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
+                    continue;
+                }
+                else if (ft_irc.ClientIsIdentified(ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)))
+                {
+                    ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->setIsIdentified();
+                    ClientHandler(line, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
+                    std::cout << "Received line: " << line << std::endl;
+                    continue;
+                }
+                ft_irc.DeleteClient(ft_irc.getClientFds()[i].fd);
+
+                // std::cout << "id :" << i << std::endl;
+                // ActionClient(ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
             }
         }
     }

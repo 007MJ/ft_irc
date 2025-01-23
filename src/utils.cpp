@@ -36,21 +36,38 @@ bool ValidateAndStoreArgs(char *argv[], int *port_, std::string &pass_)
     return true;
 }
 
+bool HandleConnection(std::string msg_, Client *client_, Server *irc_)
+{
+
+    Commands cmd(msg_);
+    if (!client_)
+        return std::cerr << "Error: Client not found" << std::endl, false;
+
+    client_->setTypeCmd(cmd.get_type_cmd());
+    
+    if (cmd.get_type_cmd() == "PASS" || cmd.get_type_cmd() == "NICK" || cmd.get_type_cmd() == "USER")
+        return irc_->SetClientInfos(&cmd, client_, irc_);
+
+    std::string response = ":" + irc_->getName() + " NOTICE * :Error: Please complete your authentication!\r\n";
+    return clean_send(client_->getFd(), response.c_str()), false;
+}
+
 bool ClientHandler(std::string msg, Client *nc, Server *irc)
 {
+    if(!irc->ClientIsIdentified(nc))
+    {
+        std::cout << "----------------OLÉÉÉ ---------- THIS SHOULD NEVER HAPPEN-------------" << std::endl;
+        std::cout << "Client not identified" << std::endl;
+        return false;
+    }
     Commands cmd(msg);
     if (nc)
     {
         // std::cout << "ClientHandler function() :" << std::endl;
         nc->setTypeCmd(cmd.get_type_cmd());
-        // std::cout << "/////////////cmd.get_type_cmd() ://////////////" << cmd.get_type_cmd() << std::endl;
-        // if(irc->ClientIsIdentified(nc))
-        //     nc->setIsIdentified();
-        if (cmd.get_type_cmd() == "PASS" || cmd.get_type_cmd() == "NICK" || cmd.get_type_cmd() == "USER" )
-            return irc->SetClientInfos(&cmd, nc, irc);
 
         // std::cout << "Entered command: PASS" << std::endl;
-        else if (cmd.get_type_cmd() == "NICK")
+        if (cmd.get_type_cmd() == "NICK")
         {
             // std::cout << "NICK" << std::endl;
             return irc->SetClientNickName(nc, cmd.get_splitcmds()[1]);
@@ -123,8 +140,6 @@ bool clean_recv(int fd_, char *buffer)
     {
         buffer[n] = '\0'; // Null-terminate the buffer
         input += buffer;  // Append received data to the partial message
-        //    std::cout << "Received message: (" << input + ")" << "Size: " << input.size() <<  std::endl;
-        //    std::cout << "valeur de i: "  << i << std::endl;
     }
     else
     {
@@ -140,7 +155,6 @@ bool clean_recv(int fd_, char *buffer)
 
 bool clean_recv1(int fd_, std::string &line_)
 {
-
     static std::string buffer; // Retain partial messages
     char temp[BUFFER_SIZE];
     int bytes_read;
@@ -152,7 +166,7 @@ bool clean_recv1(int fd_, std::string &line_)
         temp[bytes_read] = '\0'; // Null-terminate the temporary buffer
         buffer += temp;          // Append new data to the persistent buffer
 
-        // Look for a complete line
+        // Look for a complete line (support both \r\n and \n)
         size_t pos;
         if ((pos = buffer.find("\r\n")) != std::string::npos)
         {
@@ -160,16 +174,22 @@ bool clean_recv1(int fd_, std::string &line_)
             buffer.erase(0, pos + 2);      // Remove the processed line
             return true;
         }
+        else if ((pos = buffer.find("\n")) != std::string::npos)
+        {
+            line_ = buffer.substr(0, pos); // Extract the complete line
+            buffer.erase(0, pos + 1);      // Remove the processed line
+            return true;
+        }
         return false; // Data received but no complete line yet
     }
     else if (bytes_read == 0)
     {
-        std::cerr << "Client disconnected.\n";
+        std::cerr <<  + " disconnected.\n";
         return false; // Client closed the connection
     }
     else
     {
-        std::cerr << "Error receiving data (errno=" << errno << "): " << strerror(errno) << "\n";
+        std::cerr << "Error receiving data\n" ;
         return false; // Error occurred
     }
 }
@@ -194,15 +214,22 @@ bool promptForUsername(int fd_, char *buff)
     return clean_recv(fd_, buff);
 }
 
-std::string getFullUsername(std::vector<std::string> splittedName_){
+std::string getFullUsername(std::vector<std::string> splittedName_)
+{
     std::string fullName = "";
-    
-    for(size_t i = 4 /* starts from the 5th arg in the command */; i < splittedName_.size(); i++){
-        if(splittedName_[i][0] == ':')
+
+    for (size_t i = 4 /* starts from the 5th arg in the command */; i < splittedName_.size(); i++)
+    {
+        if (splittedName_[i][0] == ':')
             splittedName_[i].erase(0, 1);
         fullName += splittedName_[i];
-        if(i != splittedName_.size() - 1)
+        if (i != splittedName_.size() - 1)
             fullName += " ";
     }
     return fullName;
+}
+
+bool SendToUser(Client* sender_, Client* receiver_, std::string& msg_){
+    std::string response = ":" + sender_->getNickname() + " PRIVMSG " + receiver_->getNickname() + " :" + msg_ + "\r\n";
+    return clean_send(receiver_->getFd(), response.c_str());
 }

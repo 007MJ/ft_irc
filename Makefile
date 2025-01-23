@@ -1,7 +1,7 @@
 NAME	= ircserv
 TEST_NAME = irctest
 CC 		= c++
-CPPFLAGS	= -Wall -Werror -Wextra #-std=c++98 //TODO activate the flag
+CPPFLAGS	= -Wall -Werror -Wextra -std=c++98 #TODO activate the flag
 DFLAGS	= -MMD -MF $(@:.o=.d)
 RM 		= rm -f
 AUTHOR	= loadjou mnshimiy anshimiy
@@ -96,13 +96,13 @@ header:
 
 cleaned:
 	@printf "%b" "$(RED)"
-	@echo "      ____   _      ______  ______ _   _ ______ _____  "
+	@echo "      ____   _      ______  ______ _   _ ______ _____    "
 	@echo "     / ___| | |    |  ____||  __  | \\ | |  ____|  __ \\ "
-	@echo "    | |     | |    | |__   | |  | |  \\| | |__  | |  | |"
-	@echo "    | |     | |    |  __|  | |__| | .   |  __| | |  | |"
-	@echo "    | |___  | |____| |____ | |  | | |\\  | |____| |__| |"
+	@echo "    | |     | |    | |__   | |  | |  \\| | |__  | |  | | "
+	@echo "    | |     | |    |  __|  | |__| | .   |  __| | |  | |  "
+	@echo "    | |___  | |____| |____ | |  | | |\\  | |____| |__| | "
 	@echo "     \\____| |______|______||_|  |_|_| \\_|______|_____/ "
-	@echo "                                                      "
+	@echo "                                                         "
 	@echo "$(DEFAULT)"
 
 
