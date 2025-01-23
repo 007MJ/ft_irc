@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
                     std::string line;
                     if(clean_recv1(ft_irc.getClientFds()[i].fd, line)){
                         ClientHandler(line, ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd), &ft_irc);
+                        ft_irc.GetClientByFd(ft_irc.getClientFds()[i].fd)->setIsIdentified();
                         std::cout << "Received line: " << line << std::endl;
                         continue;
                     }

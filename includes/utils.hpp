@@ -13,10 +13,11 @@ bool clean_recv1(int fd_,  std::string &line_);
 bool clean_recv(int fd_, char *buffer);
 bool clean_send(int fd_, const char *buff);
 bool promptForUsername(int fd_, char *buff);
+std::string getFullUsername(std::vector<std::string> splittedName_);
 
 
 // function pour faire les commandes
-void ClientHandler(std::string msg, Client *nc, Server *irc);
+bool ClientHandler(std::string msg, Client *nc, Server *irc);
 // void ActionClient(Client *nc, Server *irc);
 void RoomCheck(Client *nc, Server *irc);
 int getRoomindex(std::string nameRoom, Server *irc);

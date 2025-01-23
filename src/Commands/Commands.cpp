@@ -111,11 +111,11 @@ int whereIsDifferent(std::string s1, std::string s2)
 Commands::Commands(std::string message) {
     // Liste des commandes reconnues
     std::string arr[] = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG", "PASS", "NICK", "USER"};
-    std::cout << "size of arrrrrrrrrrrrr" << sizeof(arr) << std::endl;
+    // std::cout << "size of arrrrrrrrrrrrr" << sizeof(arr) << std::endl;
     for (unsigned int  i = 0; i < 9 ; i++) {
         name_cmds.push_back(arr[i]);
     }
-    std::cout << "sizeof "<< name_cmds.size() << std::endl;
+    // std::cout << "sizeof "<< name_cmds.size() << std::endl;
     this->input = message;
     std::string word = "";
 
@@ -146,14 +146,14 @@ Commands::Commands(std::string message) {
     // Recherche de la commande principale
     for (size_t i = 0; i < this->split_cmds.size(); ++i) 
     {
-        std::cout << "tour " << i << std::endl;
-        std::cout <<"main loop " << this->split_cmds[i] << std::endl;
-        std::cout <<"size of arr " << name_cmds.size() << std::endl;
+        // std::cout << "tour " << i << std::endl;
+        // std::cout <<"main loop " << this->split_cmds[i] << std::endl;
+        // std::cout <<"size of arr " << name_cmds.size() << std::endl;
         for (size_t j = 0; j < name_cmds.size(); ++j) 
         {
             if (this->split_cmds[i] == name_cmds[j]) 
             {
-                std::cout << "same fun" << this->split_cmds[i] << std::endl;
+                // std::cout << "same fun" << this->split_cmds[i] << std::endl;
                 this->type_cmds = name_cmds[j];
                 break;
             }
@@ -162,15 +162,15 @@ Commands::Commands(std::string message) {
             break;
     }
 
-    for (unsigned int i = 0; i < this->split_cmds.size(); i++)
-    {
-        // std::cout<< "in index :" << this->split_cmds[i] << std::endl;
-    }
+    // for (unsigned int i = 0; i < this->split_cmds.size(); i++)
+    // {
+    //     // std::cout<< "in index :" << this->split_cmds[i] << std::endl;
+    // }
     // Vérifie s'il y a trop de commandes reconnues
     if (too_much_cmds(this->split_cmds, name_cmds)) {
         this->type_cmds = "";
     }
-    std::cout << "type of cmd :" << this->type_cmds << std::endl;
+    // std::cout << "type of cmd :" << this->type_cmds << std::endl;
 }
 
 

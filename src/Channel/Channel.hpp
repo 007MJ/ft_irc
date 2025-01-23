@@ -38,6 +38,8 @@ public:
     std::map<int, Client*> getClientChannel();
     std::set<int> getSuperUsers();
 
+    void ListClients();
+
 
         
 

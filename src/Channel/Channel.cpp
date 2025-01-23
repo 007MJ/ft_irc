@@ -24,7 +24,20 @@ void Channel::AddClient(Client *client_)
 {
     if (client_)
     {
+        // std::cout << "###############Before adding " << client_->getNickname() << std::endl;
+        // ListClients();
+        // std::cout << "---------------------" << client_->getNickname() + " with fd: " << client_->getFd() << " added to the channel----------" << std::endl;
+        // std::cout << "Client memory address: " << client_ << std::endl;
+        // _clients.insert(std::pair<int, Client*>(client_->getFd(), client_));
+        // std::cout << "###############After adding " << client_->getNickname() << std::endl;
         _clients[client_->getFd()] = client_;
+        ListClients();
+        // std::cout << "*****************************List of users**************************** ";
+        // std::cout << _clients.size() << " users" << std::endl;
+        // for(std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+        // {
+        //     std::cout << "- " << it->second->getNickname() << std::endl;
+        // }
     }
 }
 
@@ -114,3 +127,11 @@ void Channel::SetChannelLimit(int limit_)
 }
 std::map<int, Client*> Channel::getClientChannel() {return this-> _clients;}
 std::set<int> Channel::getSuperUsers() {return this->_superUsers;}
+
+void Channel::ListClients(){
+    std::cout << "List of users in the channel: " << _name << " (" << _clients.size() << ")" << std::endl;
+    std::map<int, Client*>::iterator it = _clients.begin();
+    for(; it != _clients.end(); ++it){
+        std::cout << "- " + it->second->getNickname() + " fd: " << it->first << " memory address: " << it->second << std::endl;
+    }
+}

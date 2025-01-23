@@ -194,7 +194,7 @@ int getRoomindex(std::string nameRoom, Server *irc){
     while (index < irc->getChannel().size())
     {
         if (nameRoom == irc->getChannel()[index].GetName()){
-            std::cout <<"arg name : " << nameRoom << " Get->name " << irc->getChannel()[index].GetName() << std::endl;
+            // std::cout <<"arg name : " << nameRoom << " Get->name " << irc->getChannel()[index].GetName() << std::endl;
             return index;
         }
         index++;
@@ -215,38 +215,59 @@ int getUser(std::string usrName, Server *irc){
 
 void RoomCheck(Client *nc, Server *irc){
 
-    std::map<std::string, std::string> arr;
-    int indexRoom;
-    arr = nc->getJoin();
+    std::map<std::string, std::string> arr = nc->getJoin();
     std::map<std::string, std::string>::iterator it = arr.begin();
-    std::map<std::string, std::string>::iterator end = arr.end();
-    while (it != end)
+    
+    Channel* room = nullptr;
+    while (it != arr.end())
     {
-        indexRoom = getRoomindex(it->first, irc);
-        std::cout << " is index room :" << indexRoom << std::endl;
-        if (indexRoom > -1)
+        room = irc->getChannelByName(it->first);
+        if(room != nullptr)
         {
-            Channel room = irc->getChannel()[indexRoom];
-            if (room.GetPassword() == it->second)
-            {
-                if (room.IsMember(nc->getFd()) == false && room.InviteOnlyModeIsActivated() == false)
-                {
-                    room.AddClient(nc);
-                    displayRoom(nc, room);
-                    std::cout << "Display usr" << std::endl;
-                }
-            }
+            if (room->GetPassword() == it->second && !room->IsMember(nc->getFd()) && !room->InviteOnlyModeIsActivated())
+                    room->AddClient(nc);
         }
-        else 
-        {
-            std::cout << "add the room->name : " << it->first  << " the len " << it->first.size() << std::endl;
+        else
             irc->addChannel(it->first, it->second, *nc);
-            // add super as superUser();
-        }
         it++;
     }
-    std::cout << "end function " << std::endl;
+
 }
+// void RoomCheck(Client *nc, Server *irc){
+
+//     std::map<std::string, std::string> arr;
+//     int indexRoom;
+//     arr = nc->getJoin();
+//     std::map<std::string, std::string>::iterator it = arr.begin();
+//     std::map<std::string, std::string>::iterator end = arr.end();
+//     while (it != end)
+//     {
+//         indexRoom = getRoomindex(it->first, irc);
+//         // std::cout << " is index room :" << indexRoom << std::endl;
+//         if (indexRoom > -1)
+//         {
+//             Channel room = irc->getChannel()[indexRoom];
+//             if (irc->getChannel()[indexRoom].GetPassword() == it->second)
+//             {
+//                 if (room.IsMember(nc->getFd()) == false && room.InviteOnlyModeIsActivated() == false)
+//                 {
+//                     // room.AddClient(nc);
+//                     irc->getChannel()[indexRoom].AddClient(nc);
+//                     displayRoom(nc, room);
+//                     // std::cout << "Display usr" << std::endl;
+//                 }
+//             }
+//         }
+//         else 
+//         {
+//             // std::cout << "add the room->name : " << it->first  << " the len " << it->first.size() << std::endl;
+//             irc->addChannel(it->first, it->second, *nc);
+//             // add super as superUser();
+//         }
+//         it++;
+//     }
+//     // std::cout << "end function " << std::endl;
+// }
 
 
 void displayRoom(Client *nc , Channel room){
@@ -270,8 +291,8 @@ void kick(Client *nc, Server *irc)
 {
     context_mode obj;
     obj = nc->getKick();
-    std::cout<<"Target :" << obj.target << std::endl;
-    std::cout<<"Modestring :" << obj.modestring << std::endl;
+    // std::cout<<"Target :" << obj.target << std::endl;
+    // std::cout<<"Modestring :" << obj.modestring << std::endl;
     int index = 0;
     index = getRoomindex(obj.target, irc);
     int usrIndex = getUser(obj.modestring, irc);
