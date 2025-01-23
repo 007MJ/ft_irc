@@ -43,16 +43,23 @@ unsigned int invite(Client* nc, Server* irc) {
             return 404; // Not Found
         }
 
-        if (room->InviteOnlyModeIsActivated()) {
-            if (room->IsSuperUser(nc->getFd())) {
+        if (room->InviteOnlyModeIsActivated()) 
+        {
+            if (room->IsSuperUser(nc->getFd())) 
+            {
                 int indexClient = getClient(it->second, irc);
-                if (indexClient >= 0) {
-                    room->AddClient(&irc->getClients()[indexClient]);
+                if (indexClient >= 0) 
+                {
+                    if (room->getClientChannel().size() <  (size_t)room->getChannelLimit())
+                        room->AddClient(&irc->getClients()[indexClient]);
                     std::cout << "Invited user: " << it->second << std::endl;
-                } else {
+                    std::cout << "Invited name client " << irc->getClients()[indexClient].getNickname() << std::endl;
+                } else 
+                {
                     std::cout << "User not found: " << it->second << std::endl;
                 }
-            } else {
+            } else 
+            {
                 std::cout << "Permission denied. User is not a superuser." << std::endl;
             }
         } else {
@@ -96,7 +103,7 @@ unsigned int topic(Client* nc, Server* irc) {
 
     Channel* room = irc->getChannelByName(arr[0]);
     int setTop = pasrinTopic(arr[1]);
-
+    // 
     if (setTop == 0) {
         sendMsg("Topic: " + room->getTopic(), nc, 0);
         std::cout << "Viewing topic: " << room->getTopic() << std::endl;
@@ -146,7 +153,10 @@ void kick(Client* nc, Server* irc) {
     std::string const nameTagrget(obj.target);
     Channel* room = irc->getChannelByName(nameTagrget);
     if (room->IsSuperUser(nc->getFd())) {
-        room->RemoveClient(usrIndex);
+        // irc->getClients()[usrIndex].getFd()
+        room->RemoveClient(irc->getClients()[usrIndex].getFd());
+        if (room->getClientChannel().size() == 0)
+            irc->getChannel().erase(irc->getChannel().begin() + usrIndex);
         std::cout << "User " << usrIndex << " kicked from channel " << room->GetName() << "." << std::endl;
     } else {
         std::cout << "Permission denied. User is not a superuser." << std::endl;
@@ -180,8 +190,14 @@ void RoomCheck(Client *nc, Server *irc){
         room = irc->getChannelByName(it->first);
         if(room != nullptr)
         {
-            if (room->GetPassword() == it->second && !room->IsMember(nc->getFd()) && !room->InviteOnlyModeIsActivated())
+            if (room->GetPassword() == it->second && room->IsMember(nc->getFd()) == false)
+            {
+                std::cout <<"is invite true: " << (room->InviteOnlyModeIsActivated()) << std::endl;
+                std::cout <<"-channel size: " << (room->getClientChannel().size()) << std::endl;
+                std::cout <<"-limite channel " << (size_t)room->getChannelLimit() << std::endl;
+                if (room->InviteOnlyModeIsActivated() && (room->getClientChannel().size() < (size_t)room->getChannelLimit()))
                     room->AddClient(nc);
+            }
         }
         else
             irc->addChannel(it->first, it->second, *nc);
@@ -191,6 +207,8 @@ void RoomCheck(Client *nc, Server *irc){
 }
 
 void modeOption(Channel& room, const std::string& opt, const std::string& data) {
+    std::cout << " data "<<  data << std::endl;
+    std::cout << "opt "<<  opt << std::endl;
     if (opt == "+i" ||  opt == "-i") {
         room.SetInviteOnlyModeTo(opt[0] != '-');
     } else if (opt == "+t" || opt == "-t") {
@@ -229,8 +247,11 @@ void mode(Client* nc, Server* irc) {
     Channel* room = irc->getChannelByName(var.target);
     if (var.modestring.size() == 2) {
         std::string data = var.arguments.empty() ? "" : var.arguments[0];
-        if (room)
-           modeOption(*room, var.modestring, data);
+        if (room && room->IsSuperUser(nc->getFd()))
+                modeOption(*room, var.modestring, data);
+        else
+            std::cout << "Error: not superUser or room == NULL" << std::endl;
+
     } else {
         std::cout << "Error: Invalid mode string." << std::endl;
     }

@@ -45,7 +45,19 @@ void Channel::AddClient(Client *client_)
 
 void Channel::RemoveClient(int fd_)
 {
+    for (std::map<int, Client *> ::iterator it = _clients.begin() ; it != _clients.end(); it++){
+        if (it->first == fd_)
+        {
+            std::cout << " remove CLient  : "<< it->second->getNickname() << std::endl;
+
+        }
+        else
+            std::cout << " false remove CLient  : "<< it->second->getNickname() << std::endl;
+        std::cout << "==> fd1  : "<< fd_ << std::endl;
+        std::cout << "==> it->first  : "<< it->first << std::endl;
+    }
     _clients.erase(fd_);
+    std::cout << "the size of the channel :"<< _clients.size() << std::endl;
 }
 
 std::string Channel::AddClientAsSuperUser(int fd_)
@@ -126,6 +138,8 @@ int Channel::getChannelLimit() const
 void Channel::SetChannelLimit(int limit_)
 {
     _limit = limit_;
+    if (_limit < 1)
+        _limit = 1;
 }
 std::map<int, Client*> Channel::getClientChannel() {return this-> _clients;}
 std::set<int> Channel::getSuperUsers() {return this->_superUsers;}
