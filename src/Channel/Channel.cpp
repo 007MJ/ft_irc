@@ -25,9 +25,20 @@ void Channel::AddClient(Client *client_)
 {
     if (client_)
     {
-        // _clients[client_->getFd()] = client_;
-        std::cout << "client add to channel :"  << client_->getFd() << std::endl;
-        _clients.insert(std::make_pair(client_->getFd(), client_));
+        // std::cout << "###############Before adding " << client_->getNickname() << std::endl;
+        // ListClients();
+        // std::cout << "---------------------" << client_->getNickname() + " with fd: " << client_->getFd() << " added to the channel----------" << std::endl;
+        // std::cout << "Client memory address: " << client_ << std::endl;
+        // _clients.insert(std::pair<int, Client*>(client_->getFd(), client_));
+        // std::cout << "###############After adding " << client_->getNickname() << std::endl;
+        _clients[client_->getFd()] = client_;
+        ListClients();
+        // std::cout << "*****************************List of users**************************** ";
+        // std::cout << _clients.size() << " users" << std::endl;
+        // for(std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+        // {
+        //     std::cout << "- " << it->second->getNickname() << std::endl;
+        // }
     }
     std::cout << "the size of the channel :"<< _clients.size() << std::endl;
 }
@@ -119,30 +130,10 @@ void Channel::SetChannelLimit(int limit_)
 std::map<int, Client*> Channel::getClientChannel() {return this-> _clients;}
 std::set<int> Channel::getSuperUsers() {return this->_superUsers;}
 
-void Channel::displayChannel(int author)
-{
-    std::map<int, Client *>::iterator it = this->_clients.begin();
-    std::string userList = "Clients in Channel " + this->_name ;
-    // <server> 353 <nickname> = <channel> :<users>\r\n
-    while (it != this->_clients.end())
-    {
-        userList += it->second->getNickname() + " ";
-        it++;
-    }
-    userList += '\r' + '\n';
-    send(author, userList.c_str(), userList.size(), 0);
-}
-
-
-void Channel::someJoin(Client *lime)
-{
-    std::map<int, Client *>::iterator it = this->_clients.begin();
-    std::string userList = "Clients has join " + this->GetName() + lime->getNickname();
-    while (it != this->_clients.end())
-    {
-        userList += '\r' + '\n';
-        if (it->first != lime->getFd())
-            send(it->first, userList.c_str(), userList.size(), 0);
-        it++;
+void Channel::ListClients(){
+    std::cout << "List of users in the channel: " << _name << " (" << _clients.size() << ")" << std::endl;
+    std::map<int, Client*>::iterator it = _clients.begin();
+    for(; it != _clients.end(); ++it){
+        std::cout << "- " + it->second->getNickname() + " fd: " << it->first << " memory address: " << it->second << std::endl;
     }
 }

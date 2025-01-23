@@ -70,9 +70,18 @@ bool Server::SetUp()
 }
 bool Server::AddClient(int clientFd_)
 {
-    Client newClient(clientFd_, "127.0.0.1", "bob");
+    Client newClient(clientFd_, "127.0.0.1", "");
     // std::cout << "###### Client AddClient() #########, fd: " << clientFd_ << std::endl;
     // newClient.setInfos(false);
+    // std::cout << "Client nickname:: " + newClient.getNickname() ;
+    // if(newClient.getNickname().empty())
+    // {
+    //     std::cout << " it's is empty\n";
+    // }
+    // else
+    // {
+    //     std::cout << " it's not empty\n";
+    // }
     _clients.push_back(newClient);
 
     for (int i = 1; i < MAX_CLIENTS; ++i)
@@ -81,7 +90,7 @@ bool Server::AddClient(int clientFd_)
         { // -1 ==> available slot
             _clientFds[i].fd = clientFd_;
             _clientFds[i].events = POLLRDNORM; // Monitor for read events
-            std::cout << "Client connected\n";
+            std::cout << newClient.getNickname() + " connected\n";
             return true;
         }
     }
@@ -124,6 +133,42 @@ Client *Server::GetClientByFd(int fd_)
         }
     }
     return NULL;
+}
+
+bool Server::UserNickNameExists(Client *client_, const std::string& nickname_)
+{
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if(client_->getFd() != it->getFd() && it->getNickname() == nickname_)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Server::SetClientNickName(Client *client_, const std::string &nickname_)
+{
+    std::string response = "";
+    if(nickname_.empty())
+    {
+        response = ":server.name NOTICE * :Nickname cannot be empty. Please choose another one.\r\n";
+        clean_send(client_->getFd(), response.c_str());
+        std::cout << "Nickname cannot be empty. Please choose another one.\r\n";
+        return false;
+    }
+    if(UserNickNameExists(client_, nickname_))
+    {
+        response = ":server.name NOTICE * :Nickname already taken. Please choose another one.\r\n";
+        clean_send(client_->getFd(), response.c_str());
+        std::cout << "Nickname already taken. Please choose another one.\r\n";
+        return false;
+    }
+    response = ":FT_IRC NOTICE * :Nickname set to " + nickname_ + "\r\n";
+    clean_send(client_->getFd(), response.c_str());
+    client_->setNickname(nickname_);
+    std::cout << "Nickname after setting: " << client_->getNickname() << std::endl;
+    return true;
 }
 
 bool Server::AcceptClient()
@@ -207,57 +252,123 @@ bool Server::IsClientAuth(int fd_)
 }
 std::vector<Client> Server::getClients() {return this->_clients;}
 
-// bool Server::AuthClient(int fd_)
-// {
+bool Server::ClientIsIdentified(Client *client_){
+    // bool isID = !client_->getNickname().empty() && !client_->getUsername().empty() && client_->getIsAuth();
+    // if(isID) {std::cout << "Client with fd: " << client_->getFd() << " is identified " << std::endl;}
+    // else{std::cout << "Client with fd: " << client_->getFd() << " is not identified " << std::endl;}
+    // std::cout << "--------------------------------infos----------------------------------\n";
+    // std::cout << "Nickname: " << client_->getNickname() << std::endl;
+    // std::cout << "Username: " << client_->getUsername() << std::endl;
+    // std::cout << "IsAuth: " << client_->getIsAuth() << std::endl;
 
-//     if (send(fd_, "Please enter the password to access the server\n", 48, 0) < 1)
-//     {
-//         return false;
-//     }
-//     char buffer[BUFFER_SIZE];
-//     int n = recv(fd_, buffer, sizeof(buffer) - 1, 0);
-//     if (n <= 0) {
-//         if (n == 0) {
-//             std::cout << "Client " << fd_ << " disconnected\n";
-//         } else {
-//             errorMsg("Error while trying to receive data.");
-//         }
-//         DeleteClient(fd_);
-//         return false;
-//     }
-//     // Respond to client
-
-//         buffer[n - 1] = '\0';
-//         std::cout << "-" << buffer << "-    -" << _password.c_str() << "-" << "\n";
-
-//         if (!strcmp(buffer, _password.c_str()))
-//         {
-//             Client* client = GetClientByFd(fd_);
-//             if (client) {
-//                 client->setIsAuth(); // Mark client as authenticated
-//             }
-//             send(fd_, "You have been successfully authenticated\n", 43, 0);
-//             return true;
-//         }
-
-//     send(fd_, "Wrong password, authentification failed. Try again.\n", 51, 0);
-//     return false;
-
-// }
-
+    return ( !client_->getNickname().empty() && !client_->getUsername().empty() && client_->getIsAuth());
+}
 
 bool Server::AuthClient(Client *client_, std::string password_)
 {
-
-
+    std::string response = "";
     if (password_ == _password)
     {
         client_->setIsAuth();
         std::cout << "---------------Client successfully authenticated----------\n";
-        return clean_send(client_->getFd(), "You have been successfully authenticated!\n");
+        response = ":" + _name + " NOTICE * :You have been successfully authenticated!\r\n";
+        return clean_send(client_->getFd(), response.c_str()), true;
     }
     std::cout << "Wrong password\n";
-    return clean_send(client_->getFd(), "Wrong password, authentication failed. Try again.\n"), false;
+    response = ":server.name NOTICE * :Wrong password. Try again.\r\n";
+    return clean_send(client_->getFd(), response.c_str()), false;
+}
+
+bool Server::SetClientInfos(Commands *cmd_, Client *client_, Server *irc_)
+{
+    // std::cout << "----------------- SetClientInfos ----------------- command type: " + cmd_->get_type_cmd() << std::endl;
+    std::string response = "";
+    if(cmd_->get_type_cmd() == "PASS")
+    {
+        if(client_->getIsAuth())
+        {
+            response = ":" + irc_->getName() + " NOTICE * :Error: Already authenticated\r\n";
+            clean_send(client_->getFd(), response.c_str());
+            return false;
+        }
+        if (cmd_->get_splitcmds().size() < 2)
+        {
+            response = ":" + irc_->getName() + " NOTICE * :Error: Missing password\r\n";
+            clean_send(client_->getFd(), response.c_str());
+            return false;
+        }
+        else if (cmd_->get_splitcmds().size() > 2)
+        {
+            response = ":" + irc_->getName() + " NOTICE * :Error: Too many arguments\r\n";
+            clean_send(client_->getFd(), response.c_str());
+            return false;
+        }
+        irc_->AuthClient(client_, cmd_->get_splitcmds()[1]);
+    }
+    else if (cmd_->get_type_cmd() == "NICK")
+    {
+        if(cmd_->get_splitcmds().size() < 2)
+        {
+            response = ":" + irc_->getName() + " NOTICE * :Error: Missing nickname\r\n";
+            clean_send(client_->getFd(), response.c_str());
+            return false;
+        }
+        else if(cmd_->get_splitcmds().size() > 2)
+        {
+            response = ":" + irc_->getName() + " NOTICE * :Error: Too many arguments\r\n";
+            clean_send(client_->getFd(), response.c_str());
+            return false;
+        }
+        // std::cout << "NICK" << std::endl;
+        irc_->SetClientNickName(client_, cmd_->get_splitcmds()[1]);
+    }
+    else if (cmd_->get_type_cmd() == "USER") // USER <username> 0 * <realname>
+    {
+        if(cmd_->get_splitcmds().size() >= 5 && cmd_->get_splitcmds()[2] == "0" && cmd_->get_splitcmds()[3] == "*")
+        {
+            std::string username = getFullUsername(cmd_->get_splitcmds());
+            // std::cout << "Received username: ================ " << username << std::endl;
+            if(username.empty())
+            {
+                response = ":" + irc_->getName() + " NOTICE * :Error: Missing username\r\n";
+                clean_send(client_->getFd(), response.c_str());
+                return false;
+            }
+            else if (username.size() == 1)
+            {
+                response = ":" + irc_->getName() + " NOTICE * :Error: Username too short\r\n";
+                clean_send(client_->getFd(), response.c_str());
+                return false;
+            }
+            else if (username.size() > USERLEN)
+            {
+                response = ":" + irc_->getName() + " NOTICE * :Error: Username too long\r\n";
+                clean_send(client_->getFd(), response.c_str());
+                return false;                
+            }
+            else if (username.find_first_of("\a\b\f\n\r\t\v") != std::string::npos)
+            {
+                response = ":" + irc_->getName() + " NOTICE * :Error: Invalid characters in username\r\n";
+                clean_send(client_->getFd(), response.c_str());
+                return false;
+            }
+            // std::cout << "USER" << std::endl;
+            response = ":" + irc_->getName() + " NOTICE * :Username set to " + username + "\r\n";
+            clean_send(client_->getFd(), response.c_str());
+            client_->setUsername(username);
+        }
+        else
+        {
+            response = ":" + irc_->getName() + " NOTICE * :Error: Invalid USER command\r\n";
+            clean_send(client_->getFd(), response.c_str());
+            return false;
+        }
+
+        // return irc_->SetClientNickName(client_, cmd_->get_splitcmds()[1]);
+    }
+    if(ClientIsIdentified(client_))
+        client_->setIsIdentified();
+    return true;
 }
 
 
@@ -271,10 +382,20 @@ int Server::getClientIndex(int fd_){
     return -1; // Return -1 if the client is not found
 }
 
+Channel *Server::getChannelByName(const std::string &name_)
+{
+    for (size_t i = 0; i < _channel.size(); ++i)
+    {
+        if (_channel[i].GetName() == name_)
+            return &_channel[i];
+    }
+    return nullptr;
+}
 
 std::vector<Channel> Server::getChannel(){return this->_channel;}
+
 void Server::addChannel(std::string name, std::string pwd, Client &nc) {
+    std::cout << "******************New channel added****************" << std::endl;
     Channel newRoom(name, pwd, nc);
-    std::cout << "Create chanmel " << std::endl;
-    this->_channel.push_back(newRoom);
+    _channel.push_back(newRoom);
 }

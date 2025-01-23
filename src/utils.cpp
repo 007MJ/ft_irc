@@ -36,73 +36,80 @@ bool ValidateAndStoreArgs(char *argv[], int *port_, std::string &pass_)
     return true;
 }
 
-
-
-void ClientHandler(std::string msg, Client *nc, Server *irc)
+bool ClientHandler(std::string msg, Client *nc, Server *irc)
 {
     Commands cmd(msg);
     if (nc)
     {
-        std::cout << "ClientHandler function() :" << std::endl;
+        // std::cout << "ClientHandler function() :" << std::endl;
         nc->setTypeCmd(cmd.get_type_cmd());
         // std::cout << "/////////////cmd.get_type_cmd() ://////////////" << cmd.get_type_cmd() << std::endl;
+        // if(irc->ClientIsIdentified(nc))
+        //     nc->setIsIdentified();
+        if (cmd.get_type_cmd() == "PASS" || cmd.get_type_cmd() == "NICK" || cmd.get_type_cmd() == "USER" )
+            return irc->SetClientInfos(&cmd, nc, irc);
 
-        if(cmd.get_type_cmd() == "PASS")
+        // std::cout << "Entered command: PASS" << std::endl;
+        else if (cmd.get_type_cmd() == "NICK")
         {
-            std::cout << "Entered command: PASS" << std::endl;
-            irc->AuthClient(nc, cmd.get_splitcmds()[1]);
+            // std::cout << "NICK" << std::endl;
+            return irc->SetClientNickName(nc, cmd.get_splitcmds()[1]);
         }
-        if (cmd.get_type_cmd() == "NICK")
-        {
-            std::cout << "NICK" << std::endl;
-            nc->setNickname(cmd.get_splitcmds()[1]);
-            std::cout << "Nickname after setting: " << nc->getNickname() << std::endl;
-        }
-        if (cmd.get_type_cmd() == "USER")
+        else if (cmd.get_type_cmd() == "USER")
         {
             std::cout << "USER" << std::endl;
             nc->setUsername(cmd.get_splitcmds()[1]);
         }
-        if (cmd.get_type_cmd() == "JOIN")
+        else if (cmd.get_type_cmd() == "JOIN")
         {
             nc->setJoin(cmd._join());
             std::cout << "JOIN" << std::endl;
             RoomCheck(nc, irc);
         }
-        // std::cout << "bug 3" << std::endl;
-        if (cmd.get_type_cmd() == "MODE")
+        else if (cmd.get_type_cmd() == "MODE")
         {
             nc->setMode(cmd._mode());
             std::cout << "MODE" << std::endl;
             mode(nc, irc);
         }
-        if (cmd.get_type_cmd() == "TOPIC")
+        else if (cmd.get_type_cmd() == "TOPIC")
         {
             std::cout << " TOPIC " << std::endl;
             nc->setTopic(cmd._topic());
             topic(nc, irc);
         }
-        if (cmd.get_type_cmd() == "KICK")
+        else if (cmd.get_type_cmd() == "KICK")
         {
             nc->setKick(cmd._kick());
             kick(nc, irc);
             std::cout << "KICK" << std::endl;
         }
-        if (cmd.get_type_cmd() == "INVITE")
+        else if (cmd.get_type_cmd() == "INVITE")
         {
             nc->setInvinte(cmd._invite());
             std::cout << "INVITE" << std::endl;
             invite(nc, irc);
         }
-        if (cmd.get_type_cmd() == "PRIVMSG")
+        else if (cmd.get_type_cmd() == "PRIVMSG")
         {
             std::cout << " PRIVMSG " << std::endl;
             nc->setPrivmsg(cmd._privmsg());
             privmsg(nc, irc);
         }
+        else
+        {
+            std::string response = ":server.name NOTICE * :Error: Command not recognized\r\n";
+            clean_send(nc->getFd(), response.c_str());
+            return false;
+        }
     }
     else
-        std::cout << "can't get client :" << std::endl;
+    {
+        std::string response = ":server.name NOTICE * :Error: Client not found\r\n";
+        clean_send(nc->getFd(), response.c_str());
+        return false;
+    }
+    return true;
 }
 
 bool clean_recv(int fd_, char *buffer)
@@ -185,4 +192,17 @@ bool promptForUsername(int fd_, char *buff)
         return false; // Return false if sending the prompt failed
     }
     return clean_recv(fd_, buff);
+}
+
+std::string getFullUsername(std::vector<std::string> splittedName_){
+    std::string fullName = "";
+    
+    for(size_t i = 4 /* starts from the 5th arg in the command */; i < splittedName_.size(); i++){
+        if(splittedName_[i][0] == ':')
+            splittedName_[i].erase(0, 1);
+        fullName += splittedName_[i];
+        if(i != splittedName_.size() - 1)
+            fullName += " ";
+    }
+    return fullName;
 }

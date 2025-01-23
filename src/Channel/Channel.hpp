@@ -40,6 +40,8 @@ public:
     void displayChannel(int author);
     void someJoin(Client *lime);
 
+    void ListClients();
+
 
         
 

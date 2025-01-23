@@ -33,6 +33,7 @@ class Client
         void setPrivmsg(context_mode arg);
         void setTypeCmd(std::string type);
         void setIsAuth();
+        void setIsIdentified();
         void setInfos(bool done);
         bool getInfos();
 
@@ -41,7 +42,8 @@ class Client
         std::string _IPadd;
         std::string _nickname;
         std::string _username;
-        bool _isAuth ;
+        bool _isAuth;
+        bool _isIdentified;
         bool _infos ; 
         // cmd of the clients 
         std::string _typeCmd; // ex: JOIN, TOPIC, INVITE

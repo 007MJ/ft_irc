@@ -87,15 +87,35 @@ int isCommaSpace(unsigned int start, const std::string& msg) {
     return (int)start;
 }
 
-
-
-Commands::Commands(std::string message) 
+int whereIsDifferent(std::string s1, std::string s2)
 {
+    unsigned index = 0;
+    std::cout << "size s1 :" << s1.size() << "size s2 " << s2.size() << std::endl;
+    while (index < s1.size() && index < s2.size())
+    {
+        if (s1[index] == s2[index])
+        {
+            std::cout << "same" <<  std::endl;
+            std::cout << "s1 :" << s1[index] << std::endl;
+            std::cout << "s2 :" << s2[index] << std::endl;
+        }else
+        {
+            std::cout << "dif -> "<<  s1[index]<< std::endl;
+            std::cout << "dif -> "<<  s2[index]<< std::endl;
+        }
+        index++;
+    }
+    return 0;
+}
+
+Commands::Commands(std::string message) {
     // Liste des commandes reconnues
     std::string arr[] = {"JOIN", "MODE", "TOPIC", "KICK", "INVITE", "PRIVMSG", "PASS", "NICK", "USER"};
+    // std::cout << "size of arrrrrrrrrrrrr" << sizeof(arr) << std::endl;
     for (unsigned int  i = 0; i < 9 ; i++) {
         name_cmds.push_back(arr[i]);
     }
+    // std::cout << "sizeof "<< name_cmds.size() << std::endl;
     this->input = message;
     std::string word = "";
 
@@ -113,11 +133,11 @@ Commands::Commands(std::string message)
             if (!word.empty()) 
             {
                 this->split_cmds.push_back(word); // Ajoute le mot à la liste
-                word.clear(); 
-                // Réinitialise le mot
+                word.clear(); // Réinitialise le mot
             }
         }
     }
+
     // Ajoute le dernier mot si la chaîne ne se termine pas par un séparateur
     if (!word.empty()) {
         this->split_cmds.push_back(word);
@@ -126,10 +146,14 @@ Commands::Commands(std::string message)
     // Recherche de la commande principale
     for (size_t i = 0; i < this->split_cmds.size(); ++i) 
     {
+        // std::cout << "tour " << i << std::endl;
+        // std::cout <<"main loop " << this->split_cmds[i] << std::endl;
+        // std::cout <<"size of arr " << name_cmds.size() << std::endl;
         for (size_t j = 0; j < name_cmds.size(); ++j) 
         {
             if (this->split_cmds[i] == name_cmds[j]) 
             {
+                // std::cout << "same fun" << this->split_cmds[i] << std::endl;
                 this->type_cmds = name_cmds[j];
                 break;
             }
@@ -137,11 +161,16 @@ Commands::Commands(std::string message)
         if (!this->type_cmds.empty()) 
             break;
     }
+
+    // for (unsigned int i = 0; i < this->split_cmds.size(); i++)
+    // {
+    //     // std::cout<< "in index :" << this->split_cmds[i] << std::endl;
+    // }
     // Vérifie s'il y a trop de commandes reconnues
     if (too_much_cmds(this->split_cmds, name_cmds)) {
         this->type_cmds = "";
     }
-    std::cout << "type of cmd :" << this->type_cmds << std::endl;
+    // std::cout << "type of cmd :" << this->type_cmds << std::endl;
 }
 
 
@@ -288,6 +317,3 @@ context_mode Commands::_privmsg()
     std::cout<< " target " << var.arguments[0] << std::endl;
     return var;
 }
-
-
-

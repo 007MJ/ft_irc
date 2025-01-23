@@ -1,12 +1,16 @@
 #include "Client.hpp"
+#include "../../includes/utils.hpp"
 
 Client::Client(int fd, const std::string &IPadd_, const std::string &nickname_)
     : _fd(fd), _IPadd(IPadd_), _nickname(nickname_) {
+        _username = "";
         _isAuth = false;
+        _isIdentified = false;
     }
 
 Client::~Client()
 {
+    // delete this;
     // TODO close(_fd); ?
 }
 
@@ -55,6 +59,13 @@ void Client::setUsername(const std::string &username_)
 void Client::setIsAuth()
 {
     _isAuth = true;
+}
+void Client::setIsIdentified(){
+    if(!_isIdentified){
+        _isIdentified = true;
+        std::string response = ":FT_IRC NOTICE * :Welcome to the server !\r\n";
+        clean_send(_fd, response.c_str());
+    }
 }
 
 void Client::setInfos(bool done){this->_infos = done;}

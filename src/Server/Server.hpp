@@ -14,6 +14,7 @@
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
+#define USERLEN 20
 
 class Server
 {
@@ -27,6 +28,11 @@ public:
     bool DeleteClient(int clientFd_);
     Client* GetClientByFd(int fd_);
     bool ClientExists(int fd_);
+    bool UserNickNameExists(Client *client_, const std::string& nickname_);
+    bool SetClientNickName(Client *client_, const std::string &nickname_);
+    bool SetClientUsername(Client *client_, const std::string &username_);
+    bool SetClientInfos(Commands *cmd_, Client *client_, Server *irc_);
+    bool ClientIsIdentified(Client *client_);
 
     bool AcceptClient();
     const struct pollfd* getClientFds() const;
@@ -37,7 +43,10 @@ public:
     std::vector<Client> getClients();
     void addChannel(std::string name, std::string pwd, Client &nc);
     int getClientIndex(int fd_);
+    Channel* getChannelByName(const std::string& name_);
     // void remove(std::string room);
+
+    const std::string& getName() const { return _name; }
 
 
 private:
