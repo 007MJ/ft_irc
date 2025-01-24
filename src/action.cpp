@@ -47,7 +47,7 @@ unsigned int invite(Client *nc, Server *irc)
         if (room == NULL)
         {
             std::cout << "Channel not found: " << it->first << std::endl;
-            return 404; // Not Found
+            return 404; 
         }
 
         if (room->InviteOnlyModeIsActivated())
@@ -61,20 +61,26 @@ unsigned int invite(Client *nc, Server *irc)
                         room->AddClient(&irc->getClients()[indexClient]);
                     std::cout << "Invited user: " << it->second << std::endl;
                     std::cout << "Invited name client " << irc->getClients()[indexClient].getNickname() << std::endl;
+                    std::string response = ":" + nc->getNickname() + " INVITE " + irc->getClients()[indexClient].getNickname()+ " :" + room->GetName() + "\r\n";
+                    clean_send(nc->getFd(), response.c_str());
                 }
                 else
                 {
-                    std::cout << "User not found: " << it->second << std::endl;
+                    std::string response = ":FT_IRC 401 " + nc->getNickname() + " " + irc->getClients()[indexClient].getNickname() + " :No such nick/channel\r\n";
+                    clean_send(nc->getFd(), response.c_str());
                 }
             }
             else
             {
-                std::cout << "Permission denied. User is not a superuser." << std::endl;
+                std::string response = ":FT_IRC 482 " + nc->getNickname() + " " + room->GetName() + " :You're not channel operator\r\n";
+                clean_send(nc->getFd(), response.c_str());
+
             }
         }
         else
         {
-            std::cout << "Channel is not invite-only." << std::endl;
+            std::string response = ":FT_IRC 482 " + nc->getNickname() + " " + room->GetName() + " :Channel is not in invite-only mode\r\n";
+            clean_send(nc->getFd(), response.c_str());
         }
         ++it;
     }
@@ -109,7 +115,7 @@ unsigned int topic(Client *nc, Server *irc)
     if (arr.empty())
     {
         std::cout << "Error: No channel specified for TOPIC." << std::endl;
-        return 400; // Bad Request
+        return 400;
     }
 
     // int indexRoom = getRoomindex(arr[0], irc);
@@ -119,26 +125,48 @@ unsigned int topic(Client *nc, Server *irc)
     // }
 
     Channel *room = irc->getChannelByName(arr[0]);
+    if (!room)
+    {
+        std::string response = ":FT_IRC 403 " + nc->getNickname() + " " + arr[0] + " :No such channel\r\n";
+        clean_send(nc->getFd(), response.c_str());
+        return 1;
+    }
     int setTop = pasrinTopic(arr[1]);
     //
     if (setTop == 0)
     {
-        sendMsg("Topic: " + room->getTopic(), nc, 0);
+        std::string response = ""; 
+        if(room->getTopic().empty()){
+            response = ":FT_IRC 331 " + nc->getNickname() + " " + room->GetName() + " :No topic is set\r\n";
+            clean_send(nc->getFd(), response.c_str());
+            return 1;
+        }
+        // sendMsg("Topic: " + room->getTopic(), nc, 0);
         std::cout << "Viewing topic: " << room->getTopic() << std::endl;
+        response = ":FT_IRC 332 " + nc->getNickname() + " " + room->GetName() + " :" + room->getTopic() + "\r\n";
+        clean_send(nc->getFd(), response.c_str());
+
     }
     else if (room->TopicModeIsRestricted() && room->IsSuperUser(nc->getFd()))
     {
         room->SetTopic(setTop == 2 ? "" : arr[1]);
         std::cout << "Topic updated to: " << room->getTopic() << std::endl;
+        std::string response = ":FT_IRC 332 " + nc->getNickname() + " " + room->GetName() + " :" + room->getTopic() + "\r\n";
+        clean_send(nc->getFd(), response.c_str());
     }
     else if (!room->TopicModeIsRestricted())
     {
         room->SetTopic(setTop == 2 ? "" : arr[1]);
         std::cout << "Topic updated to: " << room->getTopic() << std::endl;
+         std::string response = ":FT_IRC 332 " + nc->getNickname() + " " + room->GetName() + " :" + room->getTopic() + "\r\n";
+        clean_send(nc->getFd(), response.c_str());
     }
     else
     {
         std::cout << "Permission denied. User is not a superuser." << std::endl;
+        std::string response = ":FT_IRC 482 " + nc->getNickname() + " " + room->GetName() + " :You're not channel operator\r\n";
+        clean_send(nc->getFd(), response.c_str());
+
     }
     return 200; // Success
 }
@@ -157,6 +185,8 @@ void sendToChannel(Channel &room, const std::string &msg)
     while (it != clients.end())
     {
         sendMsg(msg, it->second, 0);
+        // std::string response = ":" + nc->getNickname() + " KICK " + roomName + " " + irc->getClients()[usrIndex].getNickname() + "\r\n";
+        // clean_send(nc->getFd(), response.c_str());
         ++it;
     }
 }
@@ -166,11 +196,15 @@ void sendToUser(Client *author, std::string &nameClient, Server *irc, std::strin
     int userIndex = getUser(nameClient, irc);
     if (userIndex >= 0 && irc->getClients()[userIndex].getFd() != author->getFd())
     {
-        sendMsg(msg, &irc->getClients()[userIndex], 0);
+        std::string response = ":" + author->getNickname() + " PRIVMSG " + irc->getClients()[userIndex].getNickname() + " :" + msg + "\r\n";
+        clean_send(author->getFd(), response.c_str());
     }
     else
     {
-        std::cout << "Error: Cannot send message to user: " << nameClient << std::endl;
+        std::cout << "index user  " << userIndex << "\n";
+        std::cout << "name Client " << nameClient << "\n";
+        std::string response = ":FT_IRC 401 " + author->getNickname() + " " + nameClient + " :No such nick/channel\r\n";
+        clean_send(author->getFd(), response.c_str());
     }
 }
 
@@ -188,17 +222,29 @@ void kick(Client *nc, Server *irc)
 
     std::string const nameTagrget(obj.target);
     Channel *room = irc->getChannelByName(nameTagrget);
+    if(!room){
+        std::cerr << "Channel not found\n";
+        return;
+    }
+    std::string roomName = room->GetName();
     if (room->IsSuperUser(nc->getFd()))
     {
-        // irc->getClients()[usrIndex].getFd()
         room->RemoveClient(irc->getClients()[usrIndex].getFd());
-        if (room->getClientChannel().size() == 0)
-            irc->getChannel().erase(irc->getChannel().begin() + usrIndex);
-        std::cout << "User " << usrIndex << " kicked from channel " << room->GetName() << "." << std::endl;
+        if (room->getClientChannel().empty()){
+            irc->deleteChannel(irc->getChannelIndex(roomName));
+            return ;
+        }
+        std::string response = ":" + nc->getNickname() + " KICK " + roomName + " " + irc->getClients()[usrIndex].getNickname() + "\r\n";
+        clean_send(nc->getFd(), response.c_str());
+        room->SendToChannel(nc, response);
+        std::string reskick = ":" + nc->getNickname() + "!" + nc->getUsername() + "@FT_IRC KICK "+ roomName + " "+ irc->getClients()[usrIndex].getNickname() + "\r\n";
+        clean_send(irc->getClients()[usrIndex].getFd(), reskick.c_str());
     }
     else
     {
-        std::cout << "Permission denied. User is not a superuser." << std::endl;
+        std::string response = ":FT_IRC 482 " + nc->getNickname() + " " + roomName + " :You're not channel operator\r\n";
+        clean_send(nc->getFd(), response.c_str());
+
     }
 }
 
@@ -208,15 +254,30 @@ void privmsg(Client *nc, Server *irc)
     context_mode prmsg = nc->getPrivmsg();
     unsigned int index = 0;
 
+    std::string response = "";
     while (index < prmsg.arguments.size())
     {
         std::cout << "Sending message to channel" << std::endl;
-        Channel *room = irc->getChannelByName(prmsg.arguments[index]);
-        if (room)
-            sendToChannel(*irc->getChannelByName(prmsg.arguments[index]), prmsg.modestring);
+        if (prmsg.arguments[index][0] && prmsg.arguments[index][0] == '#'){
+            Channel *room = irc->getChannelByName(prmsg.target);
+            if(!room){
+                 std::string response = ":FT_IRC 401 " + nc->getNickname() + " " + prmsg.target + " :No such nick/channel\r\n";
+                clean_send(nc->getFd(), response.c_str());  
+                return ;
+            }
+            std::string response = ":" + nc->getNickname() + " PRIVMSG " + room->GetName() + " :" + prmsg.arguments[index] + "\r\n";
+            room->SendToChannel(nc, response);
+
+        }
         else
-            sendToUser(nc, prmsg.arguments[index], irc, prmsg.modestring);
-        ++index;
+        {
+            sendToUser(nc, prmsg.target, irc, prmsg.arguments[index]);
+        }
+        std::cout << "prmsg.arguments[index]" << prmsg.arguments[index] + "\n";
+        std::cout << "prmsg.modestring" << prmsg.modestring + "\n";
+        std::cout << "prmsg.tartget" << prmsg.target + "\n";
+        std::cout << "prmsg.modestring" << prmsg.modestring + "\n";
+        ++index; 
     }
 }
 
@@ -265,21 +326,48 @@ void RoomCheck(Client *nc, Server *irc)
     }
 }
 
-void modeOption(Channel &room, const std::string &opt, const std::string &data)
+void modeOption(Channel &room, const std::string &opt, const std::string &data, Client *nc)
 {
-    std::cout << " data " << data << std::endl;
-    std::cout << "opt " << opt << std::endl;
+    // std::cout << " data " << data << std::endl;err
+    if(!nc){
+        std::cerr << "Client not found!\n";
+        return;
+    }
     if (opt == "+i" || opt == "-i")
     {
         room.SetInviteOnlyModeTo(opt[0] != '-');
+        if (opt[0] == '-')
+        {
+            std::string response = ":FT_IRC MODE " + room.GetName() + " -i\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }else{
+            std::string response = ":FT_IRC MODE " + room.GetName() + " +i\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }
     }
     else if (opt == "+t" || opt == "-t")
     {
         room.SetRestrictedTopicModeTo(opt[0] != '-');
+        if (opt[0] == '-')
+        {
+            std::string response = ":FT_IRC MODE " + room.GetName() + " -t\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }else{
+            std::string response = ":FT_IRC MODE " + room.GetName() + " +t\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }
     }
     else if (opt == "+k" || opt == "-k")
     {
         room.SetPassword(opt[0] == '-' ? "" : data);
+         if (opt[0] == '-')
+        {
+            std::string response = ":FT_IRC MODE " + room.GetName() + " -k\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }else{
+            std::string response = ":FT_IRC MODE " + room.GetName() + " +k\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }
     }
     else if (opt == "+o" || opt == "-o")
     {
@@ -301,10 +389,26 @@ void modeOption(Channel &room, const std::string &opt, const std::string &data)
             }
             ++it;
         }
+        if (opt[0] == '-')
+        {
+            std::string response = ":FT_IRC MODE " + room.GetName() + " -o\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }else{
+            std::string response = ":FT_IRC MODE " + room.GetName() + " +o\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }
     }
     else if (opt == "+l" || opt == "-l")
     {
         room.SetChannelLimit(opt[0] == '-' ? 0 : std::atoi(data.c_str()));
+        if (opt[0] == '-')
+        {
+            std::string response = ":FT_IRC MODE " + room.GetName() + " -l\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }else{
+            std::string response = ":FT_IRC MODE " + room.GetName() + " +l\r\n";
+            clean_send(nc->getFd(), response.c_str());
+        }
     }
 }
 
@@ -312,21 +416,25 @@ void mode(Client *nc, Server *irc)
 {
     std::cout << "Mode command:" << std::endl;
     context_mode var = nc->getMode();
-    // int indexRoom = getRoomindex(var.target, irc);
-
-    // if (indexRoom == -1) {
-    // std::cout << "Error: Channel not found." << std::endl;
-    // return;
-    // }
-
+  
     Channel *room = irc->getChannelByName(var.target);
+    if(!room){
+        std::cerr << "Room not found\n";
+        std::string response = ":FT_IRC 403 " + nc->getNickname() + " " + var.target + " :No such channel\r\n";
+        clean_send(nc->getFd(), response.c_str());
+        return;
+    }
     if (var.modestring.size() == 2)
     {
         std::string data = var.arguments.empty() ? "" : var.arguments[0];
         if (room && room->IsSuperUser(nc->getFd()))
-            modeOption(*room, var.modestring, data);
+            modeOption(*room, var.modestring, data, nc);
         else
-            std::cout << "Error: not superUser or room == NULL" << std::endl;
+        {
+            std::string response = ":FT_IRC 482 " + nc->getNickname() + " " + room->GetName() + " :You're not channel operator\r\n";
+            clean_send(nc->getFd(), response.c_str());
+            
+        }
     }
     else
     {

@@ -59,6 +59,8 @@ void Channel::RemoveClient(int fd_)
         std::cout << "==> fd1  : "<< fd_ << std::endl;
         std::cout << "==> it->first  : "<< it->first << std::endl;
     }
+    if(IsSuperUser(fd_))
+        RemoveClientAsSuperUser(fd_);
     _clients.erase(fd_);
     std::cout << "the size of the channel :"<< _clients.size() << std::endl;
 }
@@ -111,6 +113,10 @@ const std::string &Channel::getTopic() const
 void Channel::SetTopic(const std::string &topic_)
 {
     _topic = topic_;
+    if (_topic[0] == ':') {
+        _topic.erase(0, 1);  // Remove the colon at the beginning
+    }
+
 }
 
 bool Channel::InviteOnlyModeIsActivated() const

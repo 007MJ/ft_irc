@@ -381,6 +381,15 @@ Channel *Server::getChannelByName(const std::string &name_)
     }
     return nullptr;
 }
+size_t Server::getChannelIndex(std::string &name_){
+
+    for (size_t i = 0; i < _channel.size(); ++i)
+    {
+        if (_channel[i].GetName() == name_)
+            return i;
+    }
+    return -1;
+}
 
 std::vector<Channel> Server::getChannel(){return this->_channel;}
 
@@ -388,4 +397,10 @@ void Server::addChannel(std::string name, std::string pwd, Client &nc) {
     std::cout << "******************New channel added****************" << std::endl;
     Channel newRoom(name, pwd, nc);
     _channel.push_back(newRoom);
+}
+
+void Server::deleteChannel(size_t index_){
+    if (index_ < _channel.size()) {  // Ensure index is within valid range
+        _channel.erase(_channel.begin() + index_);  // Erase the channel at the specified index
+    }
 }
